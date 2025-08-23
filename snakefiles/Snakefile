@@ -32,7 +32,7 @@ rule extract_hla:
     output:
         bedset = multiext(str(output_folder/"extract_hla"), ".bed", ".bim", ".fam")
     params:
-        from_bp = config['from_bp']
+        from_bp = config['from_bp'],
         to_bp = config['to_bp']
     run:
         in_trunk = plink_base(bedset[0])
@@ -62,7 +62,7 @@ rule run_hibag:
         fullset_anon = str(output_folder / "HIBAG" / "hibag.fullset_anon")
     threads: 32
     params:
-        hibag_model = config['hibag_model']
+        hibag_model = config['hibag_model'],
         hibag_r = "HIBAG/HIBAG.R"
     run:
         in_trunk = plink_base(input.bedset[0])
