@@ -42,7 +42,7 @@ rule extract_hla:
             "--bfile", in_trunk,
             "--chr", "6",
             "--from-bp", params.from_bp,
-            "--to-bp", params.to_bp
+            "--to-bp", params.to_bp,
             "--out", out_trunk,
             "--make-bed"
         ])
