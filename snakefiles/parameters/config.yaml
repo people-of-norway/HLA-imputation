@@ -1,0 +1,5 @@
+input_trunk: "/home/moba/geno/MobaPsychgenReleaseMarch23/MoBaPsychGen_v1/MoBaPsychGen_v1-ec-eur-batch-basic-qc"
+output_folder: "/home/oystein/hla_imputation_pipeout/2025.08.23"
+hibag_model: "/home/oystein/InfiniumOmniExpress-24-European-HLA4-hg19.RData"
+from_bp: 28477895
+to_bp: 34000000

@@ -1,0 +1,75 @@
+from pathlib import Path
+
+configfile: "parameters/config.yaml"
+shell.executable("/bin/bash")
+
+output_folder = Path(config['output_folder'])
+
+def plink_base(path):
+    """ part of the file without the last extension (such as .fam .bed .bim)
+
+    plink often works on a trunk and creates extra files: a becomes a.fam, a.bed, a.bid
+    This function creates this trunk, so /foo/bar/gazonk.fam becomes /foo/bar/gazonk
+    The resulting trunk is typically used as input to plink
+    Only the last '.' is removed so /foo.foo/bar/gazonk.x.fam will become /foo.foo/bar/gazonk.x
+    """
+    return re.sub(r"\.\w*$", "", path)
+
+rule all:
+    input:
+        hla_a = str(output_folder / "HIBAG" / "hibag.A"),
+        hla_b = str(output_folder /"HIBAG" / "hibag.B"),
+        hla_c = str(output_folder / "HIBAG" / "hibag.C"),
+        hla_drb1 = str(output_folder / "HIBAG" / "hibag.DRB1"),
+        hla_dqb1 = str(output_folder / "HIBAG" / "hibag.DQB1"),
+        hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1"),
+        fullset = str(output_folder / "HIBAG" / "hibag.fullset"),
+        fullset_anon = str(output_folder / "HIBAG" / "hibag.fullset_anon")
+
+rule extract_hla:
+    input:
+        bedset = multiext(config['input_trunk'], ".bed", ".bim", ".fam")
+    output:
+        bedset = multiext(str(output_folder/"extract_hla"), ".bed", ".bim", ".fam")
+    params:
+        from_bp = config['from_bp']
+        to_bp = config['to_bp']
+    run:
+        in_trunk = plink_base(bedset[0])
+        out_trunk = plink_base(bedset[0])
+        subprocess.run([
+            "plink2",
+            "--bfile", in_trunk,
+            "--chr", "6",
+            "--from-bp", params.from_bp,
+            "--to-bp", params.to_bp
+            "--out", out_trunk,
+            "--make-bed"
+        ])
+
+
+rule run_hibag:
+    input:
+        bedset = rules.extract_hla.output.bedset
+    output:
+        hla_a = str(output_folder / "HIBAG" / "hibag.A"),
+        hla_b = str(output_folder /"HIBAG" / "hibag.B"),
+        hla_c = str(output_folder / "HIBAG" / "hibag.C"),
+        hla_drb1 = str(output_folder / "HIBAG" / "hibag.DRB1"),
+        hla_dqb1 = str(output_folder / "HIBAG" / "hibag.DQB1"),
+        hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1"),
+        fullset = str(output_folder / "HIBAG" / "hibag.fullset"),
+        fullset_anon = str(output_folder / "HIBAG" / "hibag.fullset_anon")
+    threads: 32
+    params:
+        hibag_model = config['hibag_model']
+        hibag_r = "HIBAG/HIBAG.R"
+    run:
+        in_trunk = plink_base(input.bedset[0])
+        out_trunk = plink_base(output.hla_a)
+        subprocess.run(["Rscript", params.hibag_r, in_trunk, out_trunk, params.hibag_model, threads])
+
+
+
+
+
