@@ -32,8 +32,8 @@ rule extract_hla:
     output:
         bedset = multiext(str(output_folder/"extract_hla"), ".bed", ".bim", ".fam")
     params:
-        from_bp = config['from_bp'],
-        to_bp = config['to_bp']
+        from_bp = str(config['from_bp']),
+        to_bp = str(config['to_bp'])
     run:
         in_trunk = plink_base(input.bedset[0])
         out_trunk = plink_base(input.bedset[0])
