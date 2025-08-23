@@ -20,7 +20,7 @@ geno <- hlaBED2Geno(bed.fn=paste(input_trunk,".bed",sep = ""),
 create_model_predict_and_write <- function(object, geno, output_full, threads){
     model <- hlaModelFromObj(object)
     hla <- hlaPredict(model, geno, cl=threads)
-    write.table(x=hla$value, file=output_full, col.names=T row.names=F, sep = "\t", quote=F)
+    write.table(x=hla$value, file=output_full, col.names=T, row.names=F, sep = "\t", quote=F)
     return(hla)
 }
 hla_a <- create_model_predict_and_write(mlst$A, geno, paste0(output_trunk,".A"), threads)
