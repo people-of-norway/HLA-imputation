@@ -22,9 +22,9 @@ rule all:
         hla_c = str(output_folder / "HIBAG" / "hibag.C"),
         hla_drb1 = str(output_folder / "HIBAG" / "hibag.DRB1"),
         hla_dqb1 = str(output_folder / "HIBAG" / "hibag.DQB1"),
-        hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1"),
-        fullset = str(output_folder / "HIBAG" / "hibag.fullset"),
-        fullset_anon = str(output_folder / "HIBAG" / "hibag.fullset_anon")
+        hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1")
+        # fullset = str(output_folder / "HIBAG" / "hibag.fullset"),
+        # fullset_anon = str(output_folder / "HIBAG" / "hibag.fullset_anon")
 
 rule extract_hla:
     input:
@@ -57,9 +57,9 @@ rule run_hibag:
         hla_c = str(output_folder / "HIBAG" / "hibag.C"),
         hla_drb1 = str(output_folder / "HIBAG" / "hibag.DRB1"),
         hla_dqb1 = str(output_folder / "HIBAG" / "hibag.DQB1"),
-        hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1"),
-        fullset = str(output_folder / "HIBAG" / "hibag.fullset"),
-        fullset_anon = str(output_folder / "HIBAG" / "hibag.fullset_anon")
+        hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1")
+        # fullset = str(output_folder / "HIBAG" / "hibag.fullset"),
+        # fullset_anon = str(output_folder / "HIBAG" / "hibag.fullset_anon")
     threads: 32
     params:
         hibag_model = config['hibag_model'],
