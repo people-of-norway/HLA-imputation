@@ -6,7 +6,7 @@ args <- commandArgs(TRUE)
 input_trunk <- args[1]
 output_trunk <- args[2]
 modelfile <- args[3]
-threads <- args[4]
+threads <- as.integer(args[4])
 
 #### MODEL CREATION ####
 mlst<-get(load(modelfile))
