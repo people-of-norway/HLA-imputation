@@ -106,7 +106,7 @@ rule run_cookhla:
         in_trunk="${in_full%.*}"
         out_full="{output.alleles}"
         out_trunk="${out_full%.*}"
-        python {CookHLA_py} -i $in_trunk -hg 10 -o out_trunk -ref {CookHLA_ref} -gm {input.clpsB} -ae {input.erate} -mem {params.mem} -nth {threads}
+        python {CookHLA_py} -i $in_trunk -hg 19 -o out_trunk -ref {CookHLA_ref} -gm {input.clpsB} -ae {input.erate} -mem {params.mem} -nth {threads}
         """
     
 
