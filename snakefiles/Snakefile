@@ -1,9 +1,15 @@
 from pathlib import Path
+import sys
 
 configfile: "parameters/config.yaml"
 shell.executable("/bin/bash")
 
 output_folder = Path(config['output_folder'])
+CookHLA_path = Path(config['CookHLA_path'])
+CookHLA_py = str(CookHLA_path /"CookHLA.py")
+CookHLA_ref = str(CookHLA_path / "example" / "HM_CEU_REF")
+sys.path.append(config['CookHLA_path'])
+import MakeGeneticMap
 
 def plink_base(path):
     """ part of the file without the last extension (such as .fam .bed .bim)
@@ -23,8 +29,6 @@ rule all:
         hla_drb1 = str(output_folder / "HIBAG" / "hibag.DRB1"),
         hla_dqb1 = str(output_folder / "HIBAG" / "hibag.DQB1"),
         hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1")
-        # fullset = str(output_folder / "HIBAG" / "hibag.fullset"),
-        # fullset_anon = str(output_folder / "HIBAG" / "hibag.fullset_anon")
 
 rule extract_hla:
     input:
@@ -58,8 +62,6 @@ rule run_hibag:
         hla_drb1 = str(output_folder / "HIBAG" / "hibag.DRB1"),
         hla_dqb1 = str(output_folder / "HIBAG" / "hibag.DQB1"),
         hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1")
-        # fullset = str(output_folder / "HIBAG" / "hibag.fullset"),
-        # fullset_anon = str(output_folder / "HIBAG" / "hibag.fullset_anon")
     threads: 32
     params:
         hibag_model = config['hibag_model'],
@@ -69,7 +71,43 @@ rule run_hibag:
         out_trunk = plink_base(output.hla_a)
         subprocess.run(["Rscript", params.hibag_r, in_trunk, out_trunk, params.hibag_model, str(threads)])
 
+rule generate_map:
+    input:
+        bedset = rules.extract_hla.output.bedset
+    output:
+        erate = str(output_folder / "CookHLA" / "generate_map.aver.erate")
+        clpsB =  str(output_folder / "CookHLA" / "generate_map.mach_step.avg.clpsB")
+    conda:
+        str(CookHLA_path / "CookHLA_LINUX.yml")
+    shell:
+        """
+        in_full="{input.bedset[0]}"
+        in_trunk="${in_full%.*}"
+        output_full={output.erate}
+        out_trunk="${{output_full%.aver.erate}}"
+        python -m MakeGeneticMap -i $in_trunk -hg 19 -ref {CookHLA_ref} -o $out_trunk
+        """
 
-
+rule run_cookhla:
+    input:
+        bedset = rules.extract_hla.output.bedset,
+        erate = rules.generate_map.output.erate,
+        clpsB = rules.generate_map.output.clpsB
+    output:
+        alleles = str(output_folder / "cookhla_output.alleles")
+    conda:
+        str(CookHLA_path / "CookHLA_LINUX.yml")
+    params:
+        mem = config['CookHLA_mem']
+    threads: 32
+    shell:
+        """
+        in_full="{input.bedset[0]}"
+        in_trunk="${in_full%.*}"
+        out_full="{output.alleles}"
+        out_trunk="${out_full%.*}"
+        python {CookHLA_py} -i $in_trunk -hg 10 -o out_trunk -ref {CookHLA_ref} -gm {input.clpsB} -ae {input.erate} -mem {params.mem} -nth {threads}
+        """
+    
 
 
