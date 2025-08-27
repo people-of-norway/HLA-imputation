@@ -9,15 +9,14 @@ CookHLA_path = Path(config['CookHLA_path'])
 CookHLA_py = str(CookHLA_path /"CookHLA.py")
 CookHLA_ref = str(CookHLA_path / "example" / "HM_CEU_REF")
 sys.path.append(config['CookHLA_path'])
+allele_frequencies_folder = config['allele_frequencies_folder']
+docs_folder = config['docs_folder']
+
 import MakeGeneticMap
 
 def plink_base(path):
-    """ part of the file without the last extension (such as .fam .bed .bim)
-
-    plink often works on a trunk and creates extra files: a becomes a.fam, a.bed, a.bid
-    This function creates this trunk, so /foo/bar/gazonk.fam becomes /foo/bar/gazonk
-    The resulting trunk is typically used as input to plink
-    Only the last '.' is removed so /foo.foo/bar/gazonk.x.fam will become /foo.foo/bar/gazonk.x
+    """
+    Remove file extension from file name/path
     """
     return re.sub(r"\.\w*$", "", path)
 
@@ -108,6 +107,30 @@ rule run_cookhla:
         out_trunk="${out_full%.*}"
         python {CookHLA_py} -i $in_trunk -hg 19 -o $out_trunk -ref {CookHLA_ref} -gm {input.clpsB} -ae {input.erate} -mem {params.mem} -nth {threads}
         """
+
+
+rule plot_allele_frequencies:
+    input:
+        hibag_hla_a = rules.run_hibag.output.hla_a,
+        hibag_hla_b = rules.run_hibag.output.hla_b,
+        hibag_hla_c = rules.run_hibag.output.hla_c,
+        cookhla = rules.run_cookhla.output.alleles
+    output:
+        hla_a_frequency_plot = str(output_folder / "docs" / "frequencies_HLA_A.png"),
+        hla_b_frequency_plot = str(output_folder / "docs" / "frequencies_HLA_B.png"),
+        hla_c_frequency_plot = str(output_folder / "docs" / "frequencies_HLA_C.png")
+    params:
+        allele_frequencies_trunk = str(allele_frequencies_folder) + "/HLA"
+        plot_script = "utils/plot_allele_frequencies.R"
+    run:
+        in_trunk_hibag = plink_base(input.hibag_hla_a)
+        out_trunk = plink_base(output.hla_a)
+        subprocess.run(["Rscript", params.plot_script, in_trunk_hibag, input.cookhla, params.allele_frequencies_trunk, docs_folder])
+
+
+
+    
+
     
 
 
