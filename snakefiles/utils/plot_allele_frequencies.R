@@ -19,6 +19,10 @@ out_folder <- args[4]
 hibag_a <- read.table(paste0(hibag_trunk_file, ".A"), sep = "\t", header = T)
 hibag_b <- read.table(paste0(hibag_trunk_file, ".B"), sep = "\t", header = T)
 hibag_c <- read.table(paste0(hibag_trunk_file, ".C"), sep = "\t", header = T)
+hibag_dpb1 <- read.table(paste0(hibag_trunk_file, ".DPB1"), sep = "\t", header = T)
+hibag_dqb1 <- read.table(paste0(hibag_trunk_file, ".DQB1"), sep = "\t", header = T)
+hibag_drb1 <- read.table(paste0(hibag_trunk_file, ".DRB1"), sep = "\t", header = T)
+
 
 cookhla <- read.table(cookhla_file, sep = " ", header = F, col.names = c("fid", "iid", "hla", "dig2", "dig4", "post1", "post2", "confidence"))
 cookhla <- cookhla %>%
@@ -51,17 +55,40 @@ plot_frequencies <- function(cookhla, hibag, ref, hla) {
     dev.off()
 }
 
-ref_a <- read.table(paste0(ref_trunk_file, ".A"), header = T)
-ref_b <- read.table(paste0(ref_trunk_file, ".B"), header = T)
-ref_c <- read.table(paste0(ref_trunk_file, ".C"), header = T)
+add_rare_row <- function(ref) {
+    rare_freq <- 1 - sum(ref$freq)
+    rare_row <- data.frame(allele = "rare", freq = rare_freq)
+    ref_rare <- rbind(ref, rare_row)
+    return(ref_rare)
+}
+
+ref_a <- add_rare_row(read.table(paste0(ref_trunk_file, ".A"), header = T))
+ref_b <- add_rare_row(read.table(paste0(ref_trunk_file, ".B"), header = T))
+ref_c <- add_rare_row(read.table(paste0(ref_trunk_file, ".C"), header = T))
+ref_dpb1 <- add_rare_row(read.table(paste0(ref_trunk_file, ".DPB1"), header = T))
+ref_dqb1 <- add_rare_row(read.table(paste0(ref_trunk_file, ".DQB1"), header = T))
+ref_drb1 <- add_rare_row(read.table(paste0(ref_trunk_file, ".DRB1"), header = T))
 
 
 common_hibag_a <- extract_common_allele_freqs(hibag_a, ref_a)
-common_hibag_a <- extract_common_allele_freqs(hibag_b, ref_b)
-common_hibag_a <- extract_common_allele_freqs(hibag_c, ref_c)
+common_hibag_b <- extract_common_allele_freqs(hibag_b, ref_b)
+common_hibag_c <- extract_common_allele_freqs(hibag_c, ref_c)
+common_hibag_dpb1 <- extract_common_allele_freqs(hibag_dpb1, ref_dpb1)
+common_hibag_dqb1 <- extract_common_allele_freqs(hibag_dqb1, ref_dqb1)
+common_hibag_drb1 <- extract_common_allele_freqs(hibag_drb1, ref_drb1)
+
 
 common_cookhla_a <- extract_common_allele_freqs(subset(cookhla, hla == "A"), ref_a)
-common_cookhla_a <- extract_common_allele_freqs(subset(cookhla, hla == "B"), ref_a)
-common_cookhla_a <- extract_common_allele_freqs(subset(cookhla, hla == "C"), ref_a)
+common_cookhla_b <- extract_common_allele_freqs(subset(cookhla, hla == "B"), ref_b)
+common_cookhla_c <- extract_common_allele_freqs(subset(cookhla, hla == "C"), ref_c)
+common_cookhla_dpb1 <- extract_common_allele_freqs(subset(cookhla, hla == "DPB1"), ref_dpb1)
+common_cookhla_dqb1 <- extract_common_allele_freqs(subset(cookhla, hla == "DQB1"), ref_dqb1)
+common_cookhla_drb1 <- extract_common_allele_freqs(subset(cookhla, hla == "DRB1"), ref_drb1)
+
 
 plot_frequencies(common_cookhla_a, common_hibag_a, ref_a, "A")
+plot_frequencies(common_cookhla_b, common_hibag_b, ref_b, "B")
+plot_frequencies(common_cookhla_c, common_hibag_c, ref_c, "C")
+plot_frequencies(common_cookhla_dpb1, common_hibag_dpb1, ref_dpb1, "DPB1")
+plot_frequencies(common_cookhla_dqb1, common_hibag_dqb1, ref_dqb1, "DQB1")
+plot_frequencies(common_cookhla_drb1, common_hibag_drb1, ref_drb1, "DRB1")
