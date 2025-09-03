@@ -1,6 +1,3 @@
-library(dplyr)
-library(tidyr)
-
 debug <- T
 
 if (debug) {
@@ -58,6 +55,19 @@ plot_frequencies <- function(cookhla, hibag, ref, hla) {
     dev.off()
 }
 
+plot_hibag_ref <- function(hibag, ref, hla) {
+    freq_matrix <- rbind(hibag[ref$allele], ref$freq)
+    png(paste0(out_folder, "frequencies_HLA_", hla, ".png"), width = 800, height = 600)
+    barplot(freq_matrix,
+        beside = TRUE,
+        main = paste0("Allele frequencies for HLA-", hla),
+        xlab = "Allele", ylab = "Frequency", names.arg = ref$allele,
+        col = c("pink", "darkgreen"), las = 2
+    )
+    legend("topright", legend = c("HIBAG", "Reference"), fill = c("pink", "darkgreen"))
+    dev.off()
+}
+
 add_rare_row <- function(ref) {
     rare_freq <- 1 - sum(ref$freq)
     rare_row <- data.frame(allele = "rare", freq = rare_freq)
@@ -84,7 +94,6 @@ common_hibag_drb1 <- extract_common_allele_freqs(hibag_drb1, ref_drb1)
 common_cookhla_a <- extract_common_allele_freqs(subset(cookhla, hla == "A"), ref_a)
 common_cookhla_b <- extract_common_allele_freqs(subset(cookhla, hla == "B"), ref_b)
 common_cookhla_c <- extract_common_allele_freqs(subset(cookhla, hla == "C"), ref_c)
-common_cookhla_dpb1 <- extract_common_allele_freqs(subset(cookhla, hla == "DPB1"), ref_dpb1)
 common_cookhla_dqb1 <- extract_common_allele_freqs(subset(cookhla, hla == "DQB1"), ref_dqb1)
 common_cookhla_drb1 <- extract_common_allele_freqs(subset(cookhla, hla == "DRB1"), ref_drb1)
 
@@ -92,6 +101,6 @@ common_cookhla_drb1 <- extract_common_allele_freqs(subset(cookhla, hla == "DRB1"
 plot_frequencies(common_cookhla_a, common_hibag_a, ref_a, "A")
 plot_frequencies(common_cookhla_b, common_hibag_b, ref_b, "B")
 plot_frequencies(common_cookhla_c, common_hibag_c, ref_c, "C")
-plot_frequencies(common_cookhla_dpb1, common_hibag_dpb1, ref_dpb1, "DPB1")
+plot_hibag_ref(common_hibag_dpb1, ref_dpb1, "DPB1")
 plot_frequencies(common_cookhla_dqb1, common_hibag_dqb1, ref_dqb1, "DQB1")
 plot_frequencies(common_cookhla_drb1, common_hibag_drb1, ref_drb1, "DRB1")
