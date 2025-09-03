@@ -19,6 +19,10 @@ cookhla_file <- args[2]
 ref_trunk_file <- args[3]
 out_folder <- args[4]
 
+frequencies_folder <- paste0(out_folder, "/frequencies/")
+hibag_probability_folder <- paste0(out_folder, "/probability_densities/hibag/")
+cookhla_probability_folder <- paste0(out_folder, "/probability_densities/cookhla/")
+
 hibag_a <- read.table(paste0(hibag_trunk_file, ".A"), sep = "\t", header = T)
 hibag_b <- read.table(paste0(hibag_trunk_file, ".B"), sep = "\t", header = T)
 hibag_c <- read.table(paste0(hibag_trunk_file, ".C"), sep = "\t", header = T)
@@ -52,9 +56,9 @@ extract_common_allele_freqs <- function(allele_table, ref) {
 }
 
 
-plot_frequencies <- function(cookhla, hibag, ref, hla) {
+plot_frequencies <- function(cookhla, hibag, ref, hla, folder) {
     freq_matrix <- rbind(cookhla[ref$allele], hibag[ref$allele], ref$freq)
-    png(paste0(out_folder, "frequencies_HLA_", hla, ".png"), width = 800, height = 600)
+    png(paste0(folder, "frequencies_HLA_", hla, ".png"), width = 800, height = 600)
     barplot(freq_matrix,
         beside = TRUE,
         main = paste0("Allele frequencies for HLA-", hla),
@@ -65,9 +69,9 @@ plot_frequencies <- function(cookhla, hibag, ref, hla) {
     dev.off()
 }
 
-plot_hibag_ref <- function(hibag, ref, hla) {
+plot_hibag_ref <- function(hibag, ref, hla, folder) {
     freq_matrix <- rbind(hibag[ref$allele], ref$freq)
-    png(paste0(out_folder, "frequencies_HLA_", hla, ".png"), width = 800, height = 600)
+    png(paste0(folder, "frequencies_HLA_", hla, ".png"), width = 800, height = 600)
     barplot(freq_matrix,
         beside = TRUE,
         main = paste0("Allele frequencies for HLA-", hla),
@@ -78,8 +82,8 @@ plot_hibag_ref <- function(hibag, ref, hla) {
     dev.off()
 }
 
-plot_prob_density <- function(probs, title, filename) {
-    png(paste0(out_folder, filename))
+plot_prob_density <- function(probs, title, filename, folder) {
+    png(paste0(folder, filename))
     plot(density(probs),
         main = title,
         xlab = "Probability",
@@ -118,22 +122,22 @@ common_cookhla_dqb1 <- extract_common_allele_freqs(cookhla_dqb1, ref_dqb1)
 common_cookhla_drb1 <- extract_common_allele_freqs(cookhla_drb1, ref_drb1)
 
 
-plot_frequencies(common_cookhla_a, common_hibag_a, ref_a, "A")
-plot_frequencies(common_cookhla_b, common_hibag_b, ref_b, "B")
-plot_frequencies(common_cookhla_c, common_hibag_c, ref_c, "C")
-plot_hibag_ref(common_hibag_dpb1, ref_dpb1, "DPB1")
-plot_frequencies(common_cookhla_dqb1, common_hibag_dqb1, ref_dqb1, "DQB1")
-plot_frequencies(common_cookhla_drb1, common_hibag_drb1, ref_drb1, "DRB1")
+plot_frequencies(common_cookhla_a, common_hibag_a, ref_a, "A", frequencies_folder)
+plot_frequencies(common_cookhla_b, common_hibag_b, ref_b, "B", frequencies_folder)
+plot_frequencies(common_cookhla_c, common_hibag_c, ref_c, "C", frequencies_folder)
+plot_hibag_ref(common_hibag_dpb1, ref_dpb1, "DPB1", frequencies_folder)
+plot_frequencies(common_cookhla_dqb1, common_hibag_dqb1, ref_dqb1, "DQB1", frequencies_folder)
+plot_frequencies(common_cookhla_drb1, common_hibag_drb1, ref_drb1, "DRB1", frequencies_folder)
 
-plot_prob_density(hibag_a$prob, "HIBAG HLA-A probability density", "hibag_a_probability_density.png")
-plot_prob_density(hibag_b$prob, "HIBAG HLA-B probability density", "hibag_b_probability_density.png")
-plot_prob_density(hibag_c$prob, "HIBAG HLA-C probability density", "hibag_c_probability_density.png")
-plot_prob_density(hibag_dpb1$prob, "HIBAG HLA-DPB1 probability density", "hibag_dpb1_probability_density.png")
-plot_prob_density(hibag_dqb1$prob, "HIBAG HLA-DQB1 probability density", "hibag_dqb1_probability_density.png")
-plot_prob_density(hibag_drb1$prob, "HIBAG HLA-DRB1 probability density", "hibag_drb1_probability_density.png")
+plot_prob_density(hibag_a$prob, "HIBAG HLA-A probability density", "hibag_a_probability_density.png", hibag_probability_folder)
+plot_prob_density(hibag_b$prob, "HIBAG HLA-B probability density", "hibag_b_probability_density.png", hibag_probability_folder)
+plot_prob_density(hibag_c$prob, "HIBAG HLA-C probability density", "hibag_c_probability_density.png", hibag_probability_folder)
+plot_prob_density(hibag_dpb1$prob, "HIBAG HLA-DPB1 probability density", "hibag_dpb1_probability_density.png", hibag_probability_folder)
+plot_prob_density(hibag_dqb1$prob, "HIBAG HLA-DQB1 probability density", "hibag_dqb1_probability_density.png", hibag_probability_folder)
+plot_prob_density(hibag_drb1$prob, "HIBAG HLA-DRB1 probability density", "hibag_drb1_probability_density.png", hibag_probability_folder)
 
-plot_prob_density(cookhla_a$confidence, "CookHLA HLA-A probability density", "cookhla_a_probability_density.png")
-plot_prob_density(cookhla_b$confidence, "CookHLA HLA-B probability density", "cookhla_b_probability_density.png")
-plot_prob_density(cookhla_c$confidence, "CookHLA HLA-C probability density", "cookhla_c_probability_density.png")
-plot_prob_density(cookhla_dqb1$confidence, "CookHLA HLA-DQB1 probability density", "cookhla_dqb1_probability_density.png")
-plot_prob_density(cookhla_drb1$confidence, "CookHLA HLA-DRB1 probability density", "cookhla_drb1_probability_density.png")
+plot_prob_density(cookhla_a$confidence, "CookHLA HLA-A probability density", "cookhla_a_probability_density.png", cookhla_probability_folder)
+plot_prob_density(cookhla_b$confidence, "CookHLA HLA-B probability density", "cookhla_b_probability_density.png", cookhla_probability_folder)
+plot_prob_density(cookhla_c$confidence, "CookHLA HLA-C probability density", "cookhla_c_probability_density.png", cookhla_probability_folder)
+plot_prob_density(cookhla_dqb1$confidence, "CookHLA HLA-DQB1 probability density", "cookhla_dqb1_probability_density.png", cookhla_probability_folder)
+plot_prob_density(cookhla_drb1$confidence, "CookHLA HLA-DRB1 probability density", "cookhla_drb1_probability_density.png", cookhla_probability_folder)
