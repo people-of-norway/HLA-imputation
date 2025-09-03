@@ -4,7 +4,7 @@ if (debug) {
     args <- c(
         "/home/oystein/hla_imputation_pipeout/2025.08.23/HIBAG/hibag",
         "/home/oystein/hla_imputation_pipeout/2025.08.23/CookHLA/cookhla_output.MHC.HLA_IMPUTATION_OUT.alleles",
-        "/home/oystein/github/HLA-imputation/snakefiles/resources/norwegian_allele_frequencies/HLA.A",
+        "/home/oystein/github/HLA-imputation/snakefiles/resources/norwegian_allele_frequencies/common/HLA",
         "/home/oystein/hla_imputation_pipeout/2025.08.23/docs/"
     )
 } else {
