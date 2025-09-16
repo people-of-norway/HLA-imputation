@@ -28,7 +28,7 @@ rule all:
         hla_drb1 = str(output_folder / "HIBAG" / "hibag.DRB1"),
         hla_dqb1 = str(output_folder / "HIBAG" / "hibag.DQB1"),
         hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1"),
-        str(output_folder / "docs" / "error_rates")
+        cookhla = str(output_folder / "docs" / "error_rates")
 
 rule extract_hla:
     input:
