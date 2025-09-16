@@ -61,8 +61,7 @@ rule run_hibag:
         hla_c = str(output_folder / "HIBAG" / "hibag.C"),
         hla_drb1 = str(output_folder / "HIBAG" / "hibag.DRB1"),
         hla_dqb1 = str(output_folder / "HIBAG" / "hibag.DQB1"),
-        hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1"),
-        str(output_folder / "cookhla_output.alleles")
+        hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1")
     threads: 32
     params:
         hibag_model = config['hibag_model'],
