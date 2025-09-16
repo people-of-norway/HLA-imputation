@@ -75,7 +75,7 @@ rule generate_map:
     input:
         bedset = rules.extract_hla.output.bedset
     output:
-        erate = str(output_folder / "CookHLA" / "generate_map.aver.erate")
+        erate = str(output_folder / "CookHLA" / "generate_map.aver.erate"),
         clpsB =  str(output_folder / "CookHLA" / "generate_map.mach_step.avg.clpsB")
     conda:
         str(CookHLA_path / "CookHLA_LINUX.yml")
