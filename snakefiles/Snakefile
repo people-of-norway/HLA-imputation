@@ -27,11 +27,12 @@ rule all:
         hla_c = str(output_folder / "HIBAG" / "hibag.C"),
         hla_drb1 = str(output_folder / "HIBAG" / "hibag.DRB1"),
         hla_dqb1 = str(output_folder / "HIBAG" / "hibag.DQB1"),
-        hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1")
+        hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1"),
+        str(output_folder / "docs" / "error_rates")
 
 rule extract_hla:
     input:
-        bedset = multiext(config['input_trunk'], ".bed", ".bim", ".fam")
+        bedset = multiext(config['input_trunk'], ".pgen", ".pvar", ".psam")
     output:
         bedset = multiext(str(output_folder/"extract_hla"), ".bed", ".bim", ".fam")
     params:
@@ -42,7 +43,7 @@ rule extract_hla:
         out_trunk = plink_base(output.bedset[0])
         subprocess.run([
             "plink2",
-            "--bfile", in_trunk,
+            "--pfile", in_trunk,
             "--chr", "6",
             "--from-bp", params.from_bp,
             "--to-bp", params.to_bp,
@@ -60,7 +61,8 @@ rule run_hibag:
         hla_c = str(output_folder / "HIBAG" / "hibag.C"),
         hla_drb1 = str(output_folder / "HIBAG" / "hibag.DRB1"),
         hla_dqb1 = str(output_folder / "HIBAG" / "hibag.DQB1"),
-        hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1")
+        hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1"),
+        str(output_folder / "cookhla_output.alleles")
     threads: 32
     params:
         hibag_model = config['hibag_model'],

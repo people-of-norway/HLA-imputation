@@ -1,5 +1,5 @@
-input_trunk: "/home/moba/geno/MobaPsychgenReleaseMarch23/MoBaPsychGen_v1/MoBaPsychGen_v1-ec-eur-batch-basic-qc"
-output_folder: "/home/oystein/hla_imputation_pipeout/2025.08.23"
+input_trunk: "/home/moba/geno/HDGB-MoBaGenetics/2025.01.30_beta/moba_genotypes_2025.01.30_common"
+output_folder: "/home/oystein/hla_imputation_pipeout/2025.09.16"
 hibag_model: "/home/oystein/InfiniumOmniExpress-24-European-HLA4-hg19.RData"
 CookHLA_path: "/home/oystein/CookHLA"
 from_bp: 28477895
