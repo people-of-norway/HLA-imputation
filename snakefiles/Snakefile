@@ -121,7 +121,7 @@ rule plot_allele_frequencies:
         hla_b_frequency_plot = str(output_folder / "docs" / "frequencies_HLA_B.png"),
         hla_c_frequency_plot = str(output_folder / "docs" / "frequencies_HLA_C.png")
     params:
-        allele_frequencies_trunk = str(allele_frequencies_folder) + "/HLA"
+        allele_frequencies_trunk = str(allele_frequencies_folder) + "/HLA",
         plot_script = "utils/plot_allele_frequencies.R"
     run:
         in_trunk_hibag = plink_base(input.hibag_hla_a)
@@ -130,7 +130,7 @@ rule plot_allele_frequencies:
 
 rule check_mendelian_errors:
     input:
-        bedset = rules.extract_hla.output.bedset
+        bedset = rules.extract_hla.output.bedset,
         hibag_hla_a = rules.run_hibag.output.hla_a,
         hibag_hla_b = rules.run_hibag.output.hla_b,
         hibag_hla_c = rules.run_hibag.output.hla_c,
