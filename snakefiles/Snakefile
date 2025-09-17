@@ -28,7 +28,10 @@ rule all:
         hla_drb1 = str(output_folder / "HIBAG" / "hibag.DRB1"),
         hla_dqb1 = str(output_folder / "HIBAG" / "hibag.DQB1"),
         hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1"),
-        cookhla = str(output_folder / "docs" / "error_rates")
+        cookhla = str(output_folder / "docs" / "error_rates"),
+        hla_a_frequency_plot = str(output_folder / "docs" / "frequencies_HLA_A.png"),
+        hla_b_frequency_plot = str(output_folder / "docs" / "frequencies_HLA_B.png"),
+        hla_c_frequency_plot = str(output_folder / "docs" / "frequencies_HLA_C.png")
 
 rule extract_hla:
     input:
