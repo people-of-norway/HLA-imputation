@@ -82,8 +82,8 @@ rule generate_map:
     shell:
         """
         in_full="{input.bedset[0]}"
-        in_trunk="${in_full%.*}"
-        output_full={output.erate}
+        in_trunk="${{in_full%.*}}"
+        output_full="{output.erate}""
         out_trunk="${{output_full%.aver.erate}}"
         python -m MakeGeneticMap -i $in_trunk -hg 19 -ref {CookHLA_ref} -o $out_trunk
         """
@@ -103,9 +103,9 @@ rule run_cookhla:
     shell:
         """
         in_full="{input.bedset[0]}"
-        in_trunk="${in_full%.*}"
+        in_trunk="${{in_full%.*}}"
         out_full="{output.alleles}"
-        out_trunk="${out_full%.*}"
+        out_trunk="${{out_full%.*}}"
         python {CookHLA_py} -i $in_trunk -hg 19 -o $out_trunk -ref {CookHLA_ref} -gm {input.clpsB} -ae {input.erate} -mem {params.mem} -nth {threads}
         """
 
