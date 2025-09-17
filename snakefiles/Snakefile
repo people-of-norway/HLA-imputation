@@ -22,8 +22,8 @@ def plink_base(path):
 
 rule all:
     input:
-        hla_a = str(output_folder / "HIBAG" / "hibag.A"),
-        hla_b = str(output_folder /"HIBAG" / "hibag.B"),
+        # hla_a = str(output_folder / "HIBAG" / "hibag.A"),
+        # hla_b = str(output_folder /"HIBAG" / "hibag.B"),
         hla_c = str(output_folder / "HIBAG" / "hibag.C"),
         hla_drb1 = str(output_folder / "HIBAG" / "hibag.DRB1"),
         hla_dqb1 = str(output_folder / "HIBAG" / "hibag.DQB1"),
@@ -56,8 +56,8 @@ rule run_hibag:
     input:
         bedset = rules.extract_hla.output.bedset
     output:
-        hla_a = str(output_folder / "HIBAG" / "hibag.A"),
-        hla_b = str(output_folder /"HIBAG" / "hibag.B"),
+        # hla_a = str(output_folder / "HIBAG" / "hibag.A"),
+        # hla_b = str(output_folder /"HIBAG" / "hibag.B"),
         hla_c = str(output_folder / "HIBAG" / "hibag.C"),
         hla_drb1 = str(output_folder / "HIBAG" / "hibag.DRB1"),
         hla_dqb1 = str(output_folder / "HIBAG" / "hibag.DQB1"),
@@ -112,8 +112,8 @@ rule run_cookhla:
 
 rule plot_allele_frequencies:
     input:
-        hibag_hla_a = rules.run_hibag.output.hla_a,
-        hibag_hla_b = rules.run_hibag.output.hla_b,
+        # hibag_hla_a = rules.run_hibag.output.hla_a,
+        # hibag_hla_b = rules.run_hibag.output.hla_b,
         hibag_hla_c = rules.run_hibag.output.hla_c,
         cookhla = rules.run_cookhla.output.alleles
     output:
@@ -124,15 +124,15 @@ rule plot_allele_frequencies:
         allele_frequencies_trunk = str(allele_frequencies_folder) + "/HLA",
         plot_script = "utils/plot_allele_frequencies.R"
     run:
-        in_trunk_hibag = plink_base(input.hibag_hla_a)
+        in_trunk_hibag = plink_base(input.hibag_hla_c)
         out_trunk = plink_base(output.hla_a)
         subprocess.run(["Rscript", params.plot_script, in_trunk_hibag, input.cookhla, params.allele_frequencies_trunk, docs_folder])
 
 rule check_mendelian_errors:
     input:
         bedset = rules.extract_hla.output.bedset,
-        hibag_hla_a = rules.run_hibag.output.hla_a,
-        hibag_hla_b = rules.run_hibag.output.hla_b,
+        # hibag_hla_a = rules.run_hibag.output.hla_a,
+        # hibag_hla_b = rules.run_hibag.output.hla_b,
         hibag_hla_c = rules.run_hibag.output.hla_c,
         cookhla = rules.run_cookhla.output.alleles
     output:
