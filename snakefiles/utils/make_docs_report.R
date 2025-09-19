@@ -27,10 +27,32 @@ pipeout_folder <- args[6]
 title <- args[7]
 
 frequencies_folder <- paste0(docs_folder, "/frequencies/")
+probability_densities_folder <- paste0(docs_folder, "/probability_densities/")
 hibag_probability_folder <- paste0(docs_folder, "/probability_densities/hibag/")
 cookhla_probability_folder <- paste0(docs_folder, "/probability_densities/cookhla/")
 mendelian_error_table <- paste0(docs_folder, "/mendelian_error_rates")
 md_file <- paste0(docs_folder, "/report.md")
+
+
+if(!dir.exists(docs_folder)){
+    dir.create(docs_folder)
+}
+
+if(!dir.exists(probability_densities_folder)){
+    dir.create(probability_densities_folder)
+}
+
+if(!dir.exists(hibag_probability_folder)){
+    dir.create(hibag_probability_folder)
+}
+
+if(!dir.exists(cookhla_probability_folder)){
+    dir.create(cookhla_probability_folder)
+}
+
+if(!dir.exists(frequencies_folder)){
+    dir.create(frequencies_folder)
+}
 
 if (!file.exists(md_file)) {
   file.create(md_file)
@@ -329,6 +351,11 @@ plot_frequencies <- function(cookhla, hibag, ref, hla, filepath) {
     )
     legend("topright", legend = c("CookHLA", "HIBAG", "Reference"), fill = c("lightblue", "pink", "darkgreen"))
     dev.off()
+    write(
+        x = paste0("![](",filepath,")"),
+        file = md_file,
+        append = T
+    )
 }
 
 plot_hibag_ref <- function(hibag, ref, hla, filepath) {
@@ -342,6 +369,11 @@ plot_hibag_ref <- function(hibag, ref, hla, filepath) {
     )
     legend("topright", legend = c("HIBAG", "Reference"), fill = c("pink", "darkgreen"))
     dev.off()
+    write(
+        x = paste0("![](",filepath,")"),
+        file = md_file,
+        append = T
+    )
 }
 
 plot_prob_density <- function(probs, title, filepath) {
@@ -352,6 +384,11 @@ plot_prob_density <- function(probs, title, filepath) {
         ylab = "Density"
     )
     dev.off()
+    write(
+        x = paste0("![](",filepath,")"),
+        file = md_file,
+        append = T
+    )
 }
 
 add_rare_row <- function(ref) {
@@ -363,6 +400,11 @@ add_rare_row <- function(ref) {
 
 
 plot_frequencies_and_densities <- function(ref, hibag, cookhla, hla){
+    write(
+        x = paste0("## HLA-", hla),
+        file = md_file,
+        append = T
+    )
     ref <- add_rare_row(read.table(paste0(ref_trunk_file, ".", hla), header = T))
     common_hibag <- extract_common_allele_freqs(hibag, ref)
     common_cookhla <- extract_common_allele_freqs(cookhla, ref)
@@ -372,33 +414,37 @@ plot_frequencies_and_densities <- function(ref, hibag, cookhla, hla){
     plot_frequencies(common_cookhla, common_hibag, ref, "A", freq_filepath)
     plot_prob_density(hibag$prob, paste0("HIBAG HLA-",hla," probability density"), hibag_prob_filepath)
     plot_prob_density(cookhla$confidence, paste0("CookHLA HLA-",hla, " probability density"), cookhla_prob_filepath)
-    write(
-        x = psate0("## HLA-", hla),
-        file = md_file,
-        append = T
-    )
-      write(
-        x = paste0("![](",freq_filepath,")"),
-        file = md_file,
-        append = T
-    )
-    write(
-        x = paste0("![](",hibag_prob_filepath,")"),
-        file = md_file,
-        append = T
-    )
-    write(
-        x = paste0("![](",cookhla_prob_filepath,")"),
-        file = md_file,
-        append = T
-    )
+
 
 }
 
 plot_frequencies_and_densities(ref_trunk_file, hibag_a, cookhla_a, "A")
 plot_frequencies_and_densities(ref_trunk_file, hibag_b, cookhla_b, "B")
 plot_frequencies_and_densities(ref_trunk_file, hibag_c, cookhla_c, "C")
-plot_frequencies_and_densities(ref_trunk_file, hibag_a, cookhla_a, "A")
+plot_frequencies_and_densities(ref_trunk_file, hibag_dqb1, cookhla_dqb1, "DQB1")
+plot_frequencies_and_densities(ref_trunk_file, hibag_drb1, cookhla_drb1, "DRB1")
+
+
+dpb1_freq_filename <- paste0(frequencies_folder, "frequencies_HLA-DPB1.png")
+dpb1_density_filename <- paste0(hibag_probability_folder, "hibag_probabilities_HLA-DPB1.png")
+write(
+        x = paste0("## HLA-DPB1"),
+        file = md_file,
+        append = T
+    )
+ref_dpb1 <- add_rare_row(read.table(paste0(ref_trunk_file, ".DPB1"), header = T))
+common_hibag_dpb1 <- extract_common_allele_freqs(hibag_dpb1, ref_dpb1)
+plot_hibag_ref(common_hibag_dpb1, ref_dpb1, "DPB1", dpb1_freq_filename)
+plot_prob_density(hibag_dpb1$prob, "HIBAG HLA-DPB1 probability density", dpb1_density_filename)
+
+dqa1_density_filename <- paste0(cookhla_probability_folder, "cookhla_probabilities_HLA-DQA1.png")
+write(
+        x = paste0("## HLA-DQA1"),
+        file = md_file,
+        append = T
+    )
+plot_prob_density(cookhla_dqa1$confidence, "CookHLA HLA-DQA1 probability density", dqa1_density_filename)
+
 
 # ref_a <- add_rare_row(read.table(paste0(ref_trunk_file, ".A"), header = T))
 # ref_b <- add_rare_row(read.table(paste0(ref_trunk_file, ".B"), header = T))
@@ -455,3 +501,4 @@ merged_shared <- rbind(results_a[[1]], results_b[[1]], results_c[[1]], results_d
 hibag_dpb1_formatted <- cbind(hibag_dpb1[, 1, drop = FALSE], hla = "DPB1", hibag_dpb1[, -1, drop = FALSE]) %>% select(iid, hla, hibag1 = allele1, hibag2 = allele2, hibag_prob = prob, hibag_matching = matching)
 cook_dqa1_formatted <- cookhla_dqa1 %>% select(iid, hla, cook1 = allele1, cook2 = allele2, cook_post1 = post1, cook_post2 = post2, cook_confidence = confidence)
 merged <- bind_rows(merged_shared, hibag_dpb1_formatted, cook_dqa1_formatted)
+
