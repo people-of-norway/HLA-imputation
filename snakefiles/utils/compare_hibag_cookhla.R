@@ -84,7 +84,18 @@ split_inconsistent_alleles <- function(inconsistent_table){
     return(inconsistent_table)
 }
 
+format_and_compare <- function(hibag, cookhla, hla){
+    compare <- hibag %>% select(iid, hibag1 = allele1, hibag2 = allele2, hibag_prob = prob, hibag_matching = matching) %>% left_join(cookhla %>% select(iid, cook1 = allele1, cook2 = allele2, cook_post1 = post1, cook_post2 = post2, cook_confidence = confidence), by = "iid")
+    compare <- cbind(compare[, 1, drop = FALSE], hla = hla, compare[, -1, drop = FALSE])
+    compare$inconsistencies <- apply(compare, 1, consistency_check)
+    single_inconsistencies <- subset(compare, inconsistencies == 1) %>% select(hibag1, hibag2, cook1, cook2)
+    single_inconsistencies$inconsistent_alleles <- apply(single_inconsistencies, 1, find_inconsistencies)
+    single_inconsistencies <- split_inconsistent_alleles(single_inconsistencies)
+    inconsistency_table <- table(single_inconsistencies$hibag, single_inconsistencies$cook)
+    return(list(compare, inconsistency_table))
+}
 
+results_a <- format_and_compare(hibag_a, cookhla_a, "A")
 
 compare_a <- hibag_a %>% select(iid, hibag1 = allele1, hibag2 = allele2) %>% left_join(cookhla_a %>% select(iid, cook1 = allele1, cook2 = allele2), by = "iid")
 compare_b <- hibag_b %>% select(iid, hibag1 = allele1, hibag2 = allele2) %>% left_join(cookhla_b %>% select(iid, cook1 = allele1, cook2 = allele2), by = "iid")
