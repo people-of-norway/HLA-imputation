@@ -1,7 +1,7 @@
 library(dplyr)
 library(tidyr)
 
-debug <- T
+debug <- F
 
 if (debug) {
     args <- c(
@@ -31,8 +31,8 @@ pipeout_folder <- dirname(merged_alleles_file)
 plots_folder <- paste0(docs_folder, "/plots/")
 mendelian_error_table <- paste0(docs_folder, "/mendelian_error_rates")
 md_file <- paste0(docs_folder, "/report.md")
-inconsistencies_pipeout_folder <- paste0(pipeout_folder, "/inconsistencies/")
-inconsistencies_docs_folder <- paste0(docs_folder, "/inconsistencies/")
+inconsistencies_pipeout_folder <- paste0(pipeout_folder, "/inconsistencies_samples/")
+inconsistencies_docs_folder <- paste0(docs_folder, "/inconsistencies_aggregated/")
 
 
 if(!dir.exists(docs_folder)){
@@ -326,7 +326,7 @@ write_inconsistency_table_row(results_drb1[[1]], "DRB1")
 
 
 write(
-x = "\nTables with full inconsistency counts per allele are found in the folder called inconsistencies",
+x = "\nTables with aggregated inconsistency counts per allele are found in the folder called inconsistencies_aggregated",
 file = md_file,
 append = T
 )
@@ -488,8 +488,7 @@ write.table(x = merged_double_inconsistencies, file = paste0(inconsistencies_pip
 write.table(x = merged_all, file = merged_alleles_file, sep="\t", quote=F, row.names=F)
 
 write_inconsistency_counts <- function(inconsistency_counts, hla){
-    write.table(x=inconsistency_counts, file = paste0(inconsistencies_docs_folder, "single_inconsistencies_counts_HLA-", hla), sep="\t", quote=F)
-    write.table(x=inconsistency_counts, file = paste0(inconsistencies_pipeout_folder, "single_inconsistencies_counts_HLA-", hla), sep="\t", quote=F)
+    write.table(x=inconsistency_counts, file = paste0(inconsistencies_docs_folder, "single_inconsistencies_aggregated_HLA-", hla), sep="\t", quote=F)
 }
 
 write_inconsistency_counts(results_a[[4]], "A")

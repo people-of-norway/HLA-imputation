@@ -4,13 +4,13 @@ import sys
 configfile: "parameters/config.yaml"
 shell.executable("/bin/bash")
 
-output_folder = Path(config['output_folder'])
+output_folder = Path(config['output_folder'] + config["release"])
+docs_folder = output_folder / "docs"
 CookHLA_path = Path(config['CookHLA_path'])
 CookHLA_py = str(CookHLA_path /"CookHLA.py")
 CookHLA_ref = str(CookHLA_path / "example" / "HM_CEU_REF")
 sys.path.append(config['CookHLA_path'])
 allele_frequencies_folder = config['allele_frequencies_folder']
-docs_folder = config['docs_folder']
 
 import MakeGeneticMap
 
@@ -74,22 +74,6 @@ rule run_hibag:
         out_trunk = plink_base(output.hla_a)
         subprocess.run(["Rscript", params.hibag_r, in_trunk, out_trunk, params.hibag_model, str(threads)])
 
-# rule generate_map:
-#     input:
-#         bedset = rules.extract_hla.output.bedset
-#     output:
-#         erate = str(output_folder / "CookHLA" / "generate_map.aver.erate"),
-#         clpsB =  str(output_folder / "CookHLA" / "generate_map.mach_step.avg.clpsB")
-#     conda:
-#         str(CookHLA_path / "CookHLA_LINUX.yml")
-#     shell:
-#         """
-#         in_full="{input.bedset[0]}"
-#         in_trunk="${{in_full%.*}}"
-#         output_full="{output.erate}"
-#         out_trunk="${{output_full%.aver.erate}}"
-#         python -m MakeGeneticMap -i $in_trunk -hg 19 -ref {CookHLA_ref} -o $out_trunk
-#         """
 
 rule run_cookhla:
     input:
@@ -110,6 +94,28 @@ rule run_cookhla:
         cd {CookHLA_path}
         python {CookHLA_py} -i $in_trunk -hg 19 -o $out_trunk -ref {CookHLA_ref} -mem {params.mem} -nth {threads}
         """
+
+rule merge_and_make_docs_report:
+    input:
+        bedset = rules.extract_hla.output.bedset,
+        hibag_hla_a = rules.run_hibag.output.hla_a,
+        hibag_hla_b = rules.run_hibag.output.hla_b,
+        hibag_hla_c = rules.run_hibag.output.hla_c,
+        hibag_hla_drb1 = rules.run_hibag.output.hla_drb1,
+        hibag_hla_dqb1 = rules.run_hibag.output.hla_dqb1,
+        hibag_hla_dpb1 = rules.run_hibag.output.hla_dpb1,
+        cookhla = rules.run_cookhla.output.alleles
+    output:
+        md = str(output_folder /"docs" / "report.md"),
+        merged_alleles = str(output_folder / "merged_alleles")
+    params:
+        merge_report_script = "utils/merge_and_make_report.R",
+        allele_frequencies_trunk = str(allele_frequencies_folder) + "/HLA"
+    run:
+        in_trunk_hibag = plink_base(input.hibag_hla_a)
+        subprocess.run("Rscript", params.merge_report_script, in_trunk_hibag, input.cookhla, input.bedset[2], params.allele_frequencies_trunk, output.md, output.merged_alleles, "HLA imputation report " + config["release"])
+
+
 
 
 rule plot_allele_frequencies:
