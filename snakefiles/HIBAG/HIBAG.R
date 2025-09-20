@@ -25,6 +25,7 @@ create_model_predict_and_write(mlst$A, geno, paste0(output_trunk,".A"), threads)
 create_model_predict_and_write(mlst$B, geno, paste0(output_trunk,".B"), threads)
 create_model_predict_and_write(mlst$C, geno, paste0(output_trunk,".C"), threads)
 create_model_predict_and_write(mlst$DRB1, geno, paste0(output_trunk,".DRB1"), threads)
+create_model_predict_and_write(mlst$DQA1, geno, paste0(output_trunk,".DQA1"), threads)
 create_model_predict_and_write(mlst$DQB1, geno, paste0(output_trunk,".DQB1"), threads)
 create_model_predict_and_write(mlst$DPB1, geno, paste0(output_trunk,".DPB1"), threads)
 

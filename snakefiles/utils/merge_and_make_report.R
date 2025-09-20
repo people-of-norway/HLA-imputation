@@ -66,7 +66,6 @@ write(
   append = F
 )
 
-shared_hla <- c("A", "B", "C", "DQB1", "DRB1")
 
 
 # Extract imputed data
@@ -75,6 +74,7 @@ hibag_a <- read.table(paste0(hibag_trunk_file, ".A"), sep = "\t", header = T) %>
 hibag_b <- read.table(paste0(hibag_trunk_file, ".B"), sep = "\t", header = T) %>% rename(iid = sample.id)
 hibag_c <- read.table(paste0(hibag_trunk_file, ".C"), sep = "\t", header = T) %>% rename(iid = sample.id)
 hibag_dpb1 <- read.table(paste0(hibag_trunk_file, ".DPB1"), sep = "\t", header = T) %>% rename(iid = sample.id)
+hibag_dqa1 <- read.table(paste0(hibag_trunk_file, ".DQA1"), sep = "\t", header = T) %>% rename(iid = sample.id)
 hibag_dqb1 <- read.table(paste0(hibag_trunk_file, ".DQB1"), sep = "\t", header = T) %>% rename(iid = sample.id)
 hibag_drb1 <- read.table(paste0(hibag_trunk_file, ".DRB1"), sep = "\t", header = T) %>% rename(iid = sample.id)
 
@@ -116,6 +116,7 @@ trios_hibag_a <- get_trios_alleles(hibag_a, trios)
 trios_hibag_b <- get_trios_alleles(hibag_b, trios)
 trios_hibag_c <- get_trios_alleles(hibag_c, trios)
 trios_hibag_dpb1 <- get_trios_alleles(hibag_dpb1, trios)
+trios_hibag_dqa1 <- get_trios_alleles(hibag_dqa1, trios)
 trios_hibag_dqb1 <- get_trios_alleles(hibag_dqb1, trios)
 trios_hibag_drb1 <- get_trios_alleles(hibag_drb1, trios)
 
@@ -146,6 +147,7 @@ trios_hibag_a$mendel <- apply(trios_hibag_a, 1, mendelian_check)
 trios_hibag_b$mendel <- apply(trios_hibag_b, 1, mendelian_check)
 trios_hibag_c$mendel <- apply(trios_hibag_c, 1, mendelian_check)
 trios_hibag_dpb1$mendel <- apply(trios_hibag_dpb1, 1, mendelian_check)
+trios_hibag_dqa1$mendel <- apply(trios_hibag_dqa1, 1, mendelian_check)
 trios_hibag_dqb1$mendel <- apply(trios_hibag_dqb1, 1, mendelian_check)
 trios_hibag_drb1$mendel <- apply(trios_hibag_drb1, 1, mendelian_check)
 
@@ -202,6 +204,7 @@ add_table_row(trios_cookhla_b, "CookHLA", "B")
 add_table_row(trios_hibag_c, "HIBAG", "C")
 add_table_row(trios_cookhla_c, "CookHLA", "C")
 add_table_row(trios_hibag_dpb1, "HIBAG", "DPB1")
+add_table_row(trios_hibag_dqa1, "HIBAG", "DQA1")
 add_table_row(trios_cookhla_dqa1, "CookHLA", "DQA1")
 add_table_row(trios_hibag_dqb1, "HIBAG", "DQB1")
 add_table_row(trios_cookhla_dqb1, "CookHLA", "DQB1")
@@ -212,6 +215,7 @@ hibag_a <- hibag_a %>% left_join(trios_hibag_a %>% select(iid, mendel), by = "ii
 hibag_b <- hibag_b %>% left_join(trios_hibag_b %>% select(iid, mendel), by = "iid")
 hibag_c <- hibag_c %>% left_join(trios_hibag_c %>% select(iid, mendel), by = "iid")
 hibag_dpb1 <- hibag_dpb1 %>% left_join(trios_hibag_dpb1 %>% select(iid, mendel), by = "iid")
+hibag_dqa1 <- hibag_dqa1 %>% left_join(trios_hibag_dqa1 %>% select(iid, mendel), by = "iid")
 hibag_dqb1 <- hibag_dqb1 %>% left_join(trios_hibag_dqb1 %>% select(iid, mendel), by = "iid")
 hibag_drb1 <- hibag_drb1 %>% left_join(trios_hibag_drb1 %>% select(iid, mendel), by = "iid")
 
@@ -315,12 +319,14 @@ append = T
 results_a <- format_and_compare(hibag_a, cookhla_a, "A")
 results_b <- format_and_compare(hibag_b, cookhla_b, "B")
 results_c <- format_and_compare(hibag_c, cookhla_c, "C")
+results_dqa1 <- format_and_compare(hibag_dqa1, cookhla_dqa1, "DQA1")
 results_dqb1 <- format_and_compare(hibag_dqb1, cookhla_dqb1, "DQB1")
 results_drb1 <- format_and_compare(hibag_drb1, cookhla_drb1, "DRB1")
 
 write_inconsistency_table_row(results_a[[1]], "A")
 write_inconsistency_table_row(results_b[[1]], "B")
 write_inconsistency_table_row(results_c[[1]], "C")
+write_inconsistency_table_row(results_dqa1[[1]], "DQA1")
 write_inconsistency_table_row(results_dqb1[[1]], "DQB1")
 write_inconsistency_table_row(results_drb1[[1]], "DRB1")
 
@@ -462,26 +468,30 @@ plot_prob_density(hibag_dpb1$prob, "HIBAG HLA-DPB1 probability density", dpb1_de
 
 
 
-dqa1_density_filename <- "cookhla_probabilities_HLA-DQA1.png"
-dqa1_density_absolute_filepath <- paste0(plots_folder, dqa1_density_filename)
-dqa1_density_relative_filepath <- paste0("plots/", dqa1_density_filename)
+cook_dqa1_density_filename <- "cookhla_probabilities_HLA-DQA1.png"
+hibag_dqa1_density_filename <- "hibag_probabilities_HLA-DQA1.png"
+cook_dqa1_density_absolute_filepath <- paste0(plots_folder, cook_dqa1_density_filename)
+cook_dqa1_density_relative_filepath <- paste0("plots/", cook_dqa1_density_filename)
+
+hibag_dqa1_density_absolute_filepath <- paste0(plots_folder, hibag_dqa1_density_filename)
+hibag_dqa1_density_relative_filepath <- paste0("plots/", hibag_dqa1_density_filename)
 write(
         x = paste0("### HLA-DQA1"),
         file = md_file,
         append = T
     )
-plot_prob_density(cookhla_dqa1$confidence, "CookHLA HLA-DQA1 probability density", dqa1_density_absolute_filepath, dqa1_density_relative_filepath)
+plot_prob_density(cookhla_dqa1$confidence, "CookHLA HLA-DQA1 probability density", cook_dqa1_density_absolute_filepath, cook_dqa1_density_relative_filepath)
+plot_prob_density(hibag_dqa1$prob, "HIBAG HLA-DQA1 probability density", hibag_dqa1_density_absolute_filepath, hibag_dqa1_density_relative_filepath)
 
 
 # Merge results
 
-merged_shared <- rbind(results_a[[1]], results_b[[1]], results_c[[1]], results_dqb1[[1]], results_drb1[[1]])
+merged_shared <- rbind(results_a[[1]], results_b[[1]], results_c[[1]], results_dqa1[[1]], results_dqb1[[1]], results_drb1[[1]])
 hibag_dpb1_formatted <- cbind(hibag_dpb1[, 1, drop = FALSE], hla = "DPB1", hibag_dpb1[, -1, drop = FALSE]) %>% select(iid, hla, hibag1 = allele1, hibag2 = allele2, hibag_prob = prob, hibag_matching = matching)
-cook_dqa1_formatted <- cookhla_dqa1 %>% select(iid, hla, cook1 = allele1, cook2 = allele2, cook_post1 = post1, cook_post2 = post2, cook_confidence = confidence)
-merged_all <- bind_rows(merged_shared, hibag_dpb1_formatted, cook_dqa1_formatted)
+merged_all <- bind_rows(merged_shared, hibag_dpb1_formatted)
 
-merged_single_inconsistencies <- rbind(results_a[[2]], results_b[[2]], results_c[[2]], results_dqb1[[2]], results_drb1[[2]])
-merged_double_inconsistencies <- rbind(results_a[[3]], results_b[[3]], results_c[[3]], results_dqb1[[3]], results_drb1[[3]])
+merged_single_inconsistencies <- rbind(results_a[[2]], results_b[[2]], results_c[[2]], results_dqa1[[2]], results_dqb1[[2]], results_drb1[[2]])
+merged_double_inconsistencies <- rbind(results_a[[3]], results_b[[3]], results_c[[3]], results_dqa1[[3]], results_dqb1[[3]], results_drb1[[3]])
 
 write.table(x = merged_single_inconsistencies, file = paste0(inconsistencies_pipeout_folder, "single_inconsistencies_samples"), sep="\t", quote=F, row.names=F)
 write.table(x = merged_double_inconsistencies, file = paste0(inconsistencies_pipeout_folder, "double_inconsistencies_samples"), sep="\t", quote=F, row.names=F)
@@ -494,5 +504,6 @@ write_inconsistency_counts <- function(inconsistency_counts, hla){
 write_inconsistency_counts(results_a[[4]], "A")
 write_inconsistency_counts(results_b[[4]], "B")
 write_inconsistency_counts(results_c[[4]], "C")
+write_inconsistency_counts(results_dqa1[[4]], "DQA1")
 write_inconsistency_counts(results_dqb1[[4]], "DQB1")
 write_inconsistency_counts(results_drb1[[4]], "DRB1")

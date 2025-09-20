@@ -26,6 +26,7 @@ rule all:
         hla_b = str(output_folder /"HIBAG" / "hibag.B"),
         hla_c = str(output_folder / "HIBAG" / "hibag.C"),
         hla_drb1 = str(output_folder / "HIBAG" / "hibag.DRB1"),
+        hla_dqa1 = str(output_folder / "HIBAG" / "hibag.DQA1"),
         hla_dqb1 = str(output_folder / "HIBAG" / "hibag.DQB1"),
         hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1"),
         cookhla = str(output_folder / "CookHLA" / "cookhla_output.MHC.HLA_IMPUTATION_OUT.alleles"),
@@ -63,6 +64,7 @@ rule run_hibag:
         hla_b = str(output_folder /"HIBAG" / "hibag.B"),
         hla_c = str(output_folder / "HIBAG" / "hibag.C"),
         hla_drb1 = str(output_folder / "HIBAG" / "hibag.DRB1"),
+        hla_dqa1 = str(output_folder / "HIBAG" / "hibag.DQA1"),
         hla_dqb1 = str(output_folder / "HIBAG" / "hibag.DQB1"),
         hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1")
     threads: 32
@@ -102,6 +104,7 @@ rule merge_and_make_docs_report:
         hibag_hla_b = rules.run_hibag.output.hla_b,
         hibag_hla_c = rules.run_hibag.output.hla_c,
         hibag_hla_drb1 = rules.run_hibag.output.hla_drb1,
+        hibag_hla_dqa1 = rules.run_hibag.output.hla_dqb1,
         hibag_hla_dqb1 = rules.run_hibag.output.hla_dqb1,
         hibag_hla_dpb1 = rules.run_hibag.output.hla_dpb1,
         cookhla = rules.run_cookhla.output.alleles
@@ -115,42 +118,6 @@ rule merge_and_make_docs_report:
         in_trunk_hibag = plink_base(input.hibag_hla_a)
         subprocess.run(["Rscript", params.merge_report_script, in_trunk_hibag, input.cookhla, input.bedset[2], params.allele_frequencies_trunk, output.md, output.merged_alleles, "HLA imputation report " + config["release"]])
 
-
-
-
-# rule plot_allele_frequencies:
-#     input:
-#         hibag_hla_a = rules.run_hibag.output.hla_a,
-#         hibag_hla_b = rules.run_hibag.output.hla_b,
-#         hibag_hla_c = rules.run_hibag.output.hla_c,
-#         cookhla = rules.run_cookhla.output.alleles
-#     output:
-#         hla_a_frequency_plot = str(output_folder / "docs" / "frequencies_HLA_A.png"),
-#         hla_b_frequency_plot = str(output_folder / "docs" / "frequencies_HLA_B.png"),
-#         hla_c_frequency_plot = str(output_folder / "docs" / "frequencies_HLA_C.png")
-#     params:
-#         allele_frequencies_trunk = str(allele_frequencies_folder) + "/HLA",
-#         plot_script = "utils/plot_allele_frequencies.R"
-#     run:
-#         in_trunk_hibag = plink_base(input.hibag_hla_a)
-#         out_trunk = plink_base(output.hla_a)
-#         subprocess.run(["Rscript", params.plot_script, in_trunk_hibag, input.cookhla, params.allele_frequencies_trunk, docs_folder])
-
-# rule check_mendelian_errors:
-#     input:
-#         bedset = rules.extract_hla.output.bedset,
-#         hibag_hla_a = rules.run_hibag.output.hla_a,
-#         hibag_hla_b = rules.run_hibag.output.hla_b,
-#         hibag_hla_c = rules.run_hibag.output.hla_c,
-#         cookhla = rules.run_cookhla.output.alleles
-#     output:
-#         error_rates_file = str(output_folder / "docs" / "error_rates")
-#     params:
-#         error_rates_script = "utils/check_mendelian_errors.R"
-#     run:
-#         in_trunk_hibag = plink_base(input.hibag_hla_a)
-#         subprocess.run(["Rscript", params.error_rates_script, in_trunk_hibag, input.cookhla, input.bedset[2], output.error_rates_file])
-    
 
     
 
