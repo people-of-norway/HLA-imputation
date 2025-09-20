@@ -326,7 +326,7 @@ write_inconsistency_table_row(results_drb1[[1]], "DRB1")
 
 
 write(
-x = "Tables with full inconsistency counts per allele are found in the folder called inconsistencies",
+x = "\nTables with full inconsistency counts per allele are found in the folder called inconsistencies",
 file = md_file,
 append = T
 )
