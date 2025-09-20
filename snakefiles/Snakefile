@@ -113,7 +113,7 @@ rule merge_and_make_docs_report:
         allele_frequencies_trunk = str(allele_frequencies_folder) + "/HLA"
     run:
         in_trunk_hibag = plink_base(input.hibag_hla_a)
-        subprocess.run("Rscript", params.merge_report_script, in_trunk_hibag, input.cookhla, input.bedset[2], params.allele_frequencies_trunk, output.md, output.merged_alleles, "HLA imputation report " + config["release"])
+        subprocess.run(["Rscript", params.merge_report_script, in_trunk_hibag, input.cookhla, input.bedset[2], params.allele_frequencies_trunk, output.md, output.merged_alleles, "HLA imputation report " + config["release"]])
 
 
 
