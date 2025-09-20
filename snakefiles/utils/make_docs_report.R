@@ -451,7 +451,7 @@ write(
     )
 ref_dpb1 <- add_rare_row(read.table(paste0(ref_trunk_file, ".DPB1"), header = T))
 common_hibag_dpb1 <- extract_common_allele_freqs(hibag_dpb1, ref_dpb1)
-plot_hibag_ref(common_hibag_dpb1, ref_dpb1, "DPB1", dpb1_freq_absolute_filepath, dpb1_density_relative_filepath
+plot_hibag_ref(common_hibag_dpb1, ref_dpb1, "DPB1", dpb1_freq_absolute_filepath, dpb1_density_relative_filepath)
 plot_prob_density(hibag_dpb1$prob, "HIBAG HLA-DPB1 probability density", dpb1_density_absolute_filepath, dpb1_density_relative_filepath)
 
 
