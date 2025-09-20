@@ -28,11 +28,11 @@ title <- args[7]
 
 docs_folder <- dirname(md_file)
 pipeout_folder <- dirname(merged_alleles_file)
-plots_folder <- paste0(docs_folder, "plots/")
-mendelian_error_table <- paste0(docs_folder, "mendelian_error_rates")
-md_file <- paste0(docs_folder, "report.md")
-inconsistencies_pipeout_folder <- paste0(pipeout_folder, "inconsistencies/")
-inconsistencies_docs_folder <- paste0(docs_folder, "inconsistencies/")
+plots_folder <- paste0(docs_folder, "/plots/")
+mendelian_error_table <- paste0(docs_folder, "/mendelian_error_rates")
+md_file <- paste0(docs_folder, "/report.md")
+inconsistencies_pipeout_folder <- paste0(pipeout_folder, "/inconsistencies/")
+inconsistencies_docs_folder <- paste0(docs_folder, "/inconsistencies/")
 
 
 if(!dir.exists(docs_folder)){
