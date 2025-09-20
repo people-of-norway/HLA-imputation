@@ -273,7 +273,8 @@ format_and_compare <- function(hibag, cookhla){
     compare$inconsistencies <- apply(compare, 1, consistency_check)
     single_inconsistencies <- subset(compare, inconsistencies == 1) %>% select(hibag1, hibag2, cook1, cook2)
     single_inconsistencies$inconsistent_alleles <- apply(single_inconsistencies, 1, find_inconsistencies)
-    single_inconsistencies <- split_inconsistent_alleles(single_inconsistencies)
+    single_inconsistencies <- split_inconsistent_alleles(single_inconsistencies) %>% select(hibag, cook)
+    double_inconsistencies <- subset(comare, inconsistencies == 2) %>% select(hibag1, hibag2, cook2, cook2)
     inconsistency_table <- table(single_inconsistencies$hibag, single_inconsistencies$cook)
     return(list(compare, inconsistency_table))
 }
@@ -401,7 +402,7 @@ add_rare_row <- function(ref) {
 
 plot_frequencies_and_densities <- function(ref, hibag, cookhla, hla){
     write(
-        x = paste0("## HLA-", hla),
+        x = paste0("### HLA-", hla),
         file = md_file,
         append = T
     )
@@ -428,7 +429,7 @@ plot_frequencies_and_densities(ref_trunk_file, hibag_drb1, cookhla_drb1, "DRB1")
 dpb1_freq_filename <- paste0(frequencies_folder, "frequencies_HLA-DPB1.png")
 dpb1_density_filename <- paste0(hibag_probability_folder, "hibag_probabilities_HLA-DPB1.png")
 write(
-        x = paste0("## HLA-DPB1"),
+        x = paste0("### HLA-DPB1"),
         file = md_file,
         append = T
     )
@@ -439,7 +440,7 @@ plot_prob_density(hibag_dpb1$prob, "HIBAG HLA-DPB1 probability density", dpb1_de
 
 dqa1_density_filename <- paste0(cookhla_probability_folder, "cookhla_probabilities_HLA-DQA1.png")
 write(
-        x = paste0("## HLA-DQA1"),
+        x = paste0("### HLA-DQA1"),
         file = md_file,
         append = T
     )

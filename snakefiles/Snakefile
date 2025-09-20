@@ -94,10 +94,8 @@ rule run_hibag:
 rule run_cookhla:
     input:
         bedset = rules.extract_hla.output.bedset
-        # erate = rules.generate_map.output.erate,
-        # clpsB = rules.generate_map.output.clpsB
     output:
-        alleles = str(output_folder / "cookhla_output.alleles")
+        alleles = str(output_folder / "CookHLA" / "cookhla_output.MHC.HLA_IMPUTATION_OUT.alleles")
     conda:
         str(CookHLA_path / "CookHLA_LINUX.yml")
     params:
@@ -108,7 +106,7 @@ rule run_cookhla:
         in_full="{input.bedset[0]}"
         in_trunk="${{in_full%.*}}"
         out_full="{output.alleles}"
-        out_trunk="${{out_full%.*}}"
+        out_trunk="${{out_full%.MHC.HLA_IMPUTATION_OUT.alleles}}"
         cd {CookHLA_path}
         python {CookHLA_py} -i $in_trunk -hg 19 -o $out_trunk -ref {CookHLA_ref} -mem {params.mem} -nth {threads}
         """
