@@ -380,7 +380,7 @@ plot_hibag_ref <- function(hibag, ref, hla, absolute_filepath, relative_filepath
 }
 
 plot_prob_density <- function(probs, title, absolute_filepath, relative_filepath) {
-    png(absolute)
+    png(absolute_filepath)
     plot(density(probs),
         main = title,
         xlab = "Probability",
