@@ -9,8 +9,8 @@ if (debug) {
         "/home/oystein/hla_imputation_pipeout/2025.09.16/CookHLA/cookhla_output.MHC.HLA_IMPUTATION_OUT.alleles",
         "/home/moba/geno/MobaPsychgenReleaseMarch23/MoBaPsychGen_v1/MoBaPsychGen_v1-ec-eur-batch-basic-qc.fam",
         "/home/oystein/github/HLA-imputation/snakefiles/resources/norwegian_allele_frequencies/common/HLA",
-        "/home/oystein/test/2025.09.16/docs/",
-        "/home/oystein/test/2025.09.16/pipeout/",
+        "/home/oystein/test/2025.09.16/docs/report.md",
+        "/home/oystein/test/2025.09.16/pipeout/merged_alleles",
         "HLA Imputation report TEST"
     )
 } else {
@@ -22,10 +22,12 @@ hibag_trunk_file <- args[1]
 cookhla_file <- args[2]
 fam_file <- args[3]
 ref_trunk_file <- args[4]
-docs_folder <- args[5]
-pipeout_folder <- args[6]
+md_file <- args[5]
+merged_alleles_file <- args[6]
 title <- args[7]
 
+docs_folder <- dirname(md_file)
+pipeout_folder <- dirname(merged_alleles_file)
 plots_folder <- paste0(docs_folder, "plots/")
 mendelian_error_table <- paste0(docs_folder, "mendelian_error_rates")
 md_file <- paste0(docs_folder, "report.md")
@@ -187,7 +189,7 @@ add_table_row <- function(trios_alleles, software, hla) {
         append = T
     )
     write(
-        x = paste("|",hla,"|", software, "|", n_rows, "|", n_errors, "|", error_rate, "|"),
+        x = paste("|",hla,"|", software, "|", n_rows, "|", n_errors, "|", round(error_rate, digits=5), "|"),
         file = md_file,
         append = T
     )
@@ -323,7 +325,11 @@ write_inconsistency_table_row(results_dqb1[[1]], "DQB1")
 write_inconsistency_table_row(results_drb1[[1]], "DRB1")
 
 
-
+write(
+x = "Tables with full inconsistency counts per allele are found in the folder called inconsistencies",
+file = md_file,
+append = T
+)
 
 
 # Plot allele frequencies and probability densities
@@ -421,7 +427,7 @@ plot_frequencies_and_densities <- function(ref, hibag, cookhla, hla){
     cook_prob_absolute_filepath <- paste0(plots_folder, cook_prob_filename)
     cook_prob_relative_filepath <- paste0("plots/", cook_prob_filename)
 
-    plot_frequencies(common_cookhla, common_hibag, ref, "A", freq_absolute_path, freq_relative_path)
+    plot_frequencies(common_cookhla, common_hibag, ref, hla, freq_absolute_path, freq_relative_path)
     plot_prob_density(hibag$prob, paste0("HIBAG HLA-",hla," probability density"), hibag_prob_aboslute_filepath, hibag_prob_relative_filepath)
     plot_prob_density(cookhla$confidence, paste0("CookHLA HLA-",hla, " probability density"), cook_prob_absolute_filepath, cook_prob_relative_filepath)
 
@@ -451,7 +457,7 @@ write(
     )
 ref_dpb1 <- add_rare_row(read.table(paste0(ref_trunk_file, ".DPB1"), header = T))
 common_hibag_dpb1 <- extract_common_allele_freqs(hibag_dpb1, ref_dpb1)
-plot_hibag_ref(common_hibag_dpb1, ref_dpb1, "DPB1", dpb1_freq_absolute_filepath, dpb1_density_relative_filepath)
+plot_hibag_ref(common_hibag_dpb1, ref_dpb1, "DPB1", dpb1_freq_absolute_filepath, dpb1_freq_relative_filepath)
 plot_prob_density(hibag_dpb1$prob, "HIBAG HLA-DPB1 probability density", dpb1_density_absolute_filepath, dpb1_density_relative_filepath)
 
 
@@ -479,7 +485,7 @@ merged_double_inconsistencies <- rbind(results_a[[3]], results_b[[3]], results_c
 
 write.table(x = merged_single_inconsistencies, file = paste0(inconsistencies_pipeout_folder, "single_inconsistencies_samples"), sep="\t", quote=F, row.names=F)
 write.table(x = merged_double_inconsistencies, file = paste0(inconsistencies_pipeout_folder, "double_inconsistencies_samples"), sep="\t", quote=F, row.names=F)
-write.table(x = merged_all, file = paste0(pipeout_folder,"merged_all"), sep="\t", quote=F, row.names=F)
+write.table(x = merged_all, file = merged_alleles_file, sep="\t", quote=F, row.names=F)
 
 write_inconsistency_counts <- function(inconsistency_counts, hla){
     write.table(x=inconsistency_counts, file = paste0(inconsistencies_docs_folder, "single_inconsistencies_counts_HLA-", hla), sep="\t", quote=F)
