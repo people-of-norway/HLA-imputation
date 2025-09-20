@@ -28,10 +28,10 @@ rule all:
         hla_drb1 = str(output_folder / "HIBAG" / "hibag.DRB1"),
         hla_dqb1 = str(output_folder / "HIBAG" / "hibag.DQB1"),
         hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1"),
-        cookhla = str(output_folder / "docs" / "error_rates"),
-        hla_a_frequency_plot = str(output_folder / "docs" / "frequencies_HLA_A.png"),
-        hla_b_frequency_plot = str(output_folder / "docs" / "frequencies_HLA_B.png"),
-        hla_c_frequency_plot = str(output_folder / "docs" / "frequencies_HLA_C.png")
+        cookhla = str(output_folder / "CookHLA" / "cookhla_output.MHC.HLA_IMPUTATION_OUT.alleles"),
+        report = str(output_folder /"docs" / "report.md"),
+        merged_alleles = str(output_folder / "merged_alleles")
+
 
 rule extract_hla:
     input:
@@ -118,38 +118,38 @@ rule merge_and_make_docs_report:
 
 
 
-rule plot_allele_frequencies:
-    input:
-        hibag_hla_a = rules.run_hibag.output.hla_a,
-        hibag_hla_b = rules.run_hibag.output.hla_b,
-        hibag_hla_c = rules.run_hibag.output.hla_c,
-        cookhla = rules.run_cookhla.output.alleles
-    output:
-        hla_a_frequency_plot = str(output_folder / "docs" / "frequencies_HLA_A.png"),
-        hla_b_frequency_plot = str(output_folder / "docs" / "frequencies_HLA_B.png"),
-        hla_c_frequency_plot = str(output_folder / "docs" / "frequencies_HLA_C.png")
-    params:
-        allele_frequencies_trunk = str(allele_frequencies_folder) + "/HLA",
-        plot_script = "utils/plot_allele_frequencies.R"
-    run:
-        in_trunk_hibag = plink_base(input.hibag_hla_a)
-        out_trunk = plink_base(output.hla_a)
-        subprocess.run(["Rscript", params.plot_script, in_trunk_hibag, input.cookhla, params.allele_frequencies_trunk, docs_folder])
+# rule plot_allele_frequencies:
+#     input:
+#         hibag_hla_a = rules.run_hibag.output.hla_a,
+#         hibag_hla_b = rules.run_hibag.output.hla_b,
+#         hibag_hla_c = rules.run_hibag.output.hla_c,
+#         cookhla = rules.run_cookhla.output.alleles
+#     output:
+#         hla_a_frequency_plot = str(output_folder / "docs" / "frequencies_HLA_A.png"),
+#         hla_b_frequency_plot = str(output_folder / "docs" / "frequencies_HLA_B.png"),
+#         hla_c_frequency_plot = str(output_folder / "docs" / "frequencies_HLA_C.png")
+#     params:
+#         allele_frequencies_trunk = str(allele_frequencies_folder) + "/HLA",
+#         plot_script = "utils/plot_allele_frequencies.R"
+#     run:
+#         in_trunk_hibag = plink_base(input.hibag_hla_a)
+#         out_trunk = plink_base(output.hla_a)
+#         subprocess.run(["Rscript", params.plot_script, in_trunk_hibag, input.cookhla, params.allele_frequencies_trunk, docs_folder])
 
-rule check_mendelian_errors:
-    input:
-        bedset = rules.extract_hla.output.bedset,
-        hibag_hla_a = rules.run_hibag.output.hla_a,
-        hibag_hla_b = rules.run_hibag.output.hla_b,
-        hibag_hla_c = rules.run_hibag.output.hla_c,
-        cookhla = rules.run_cookhla.output.alleles
-    output:
-        error_rates_file = str(output_folder / "docs" / "error_rates")
-    params:
-        error_rates_script = "utils/check_mendelian_errors.R"
-    run:
-        in_trunk_hibag = plink_base(input.hibag_hla_a)
-        subprocess.run(["Rscript", params.error_rates_script, in_trunk_hibag, input.cookhla, input.bedset[2], output.error_rates_file])
+# rule check_mendelian_errors:
+#     input:
+#         bedset = rules.extract_hla.output.bedset,
+#         hibag_hla_a = rules.run_hibag.output.hla_a,
+#         hibag_hla_b = rules.run_hibag.output.hla_b,
+#         hibag_hla_c = rules.run_hibag.output.hla_c,
+#         cookhla = rules.run_cookhla.output.alleles
+#     output:
+#         error_rates_file = str(output_folder / "docs" / "error_rates")
+#     params:
+#         error_rates_script = "utils/check_mendelian_errors.R"
+#     run:
+#         in_trunk_hibag = plink_base(input.hibag_hla_a)
+#         subprocess.run(["Rscript", params.error_rates_script, in_trunk_hibag, input.cookhla, input.bedset[2], output.error_rates_file])
     
 
     
