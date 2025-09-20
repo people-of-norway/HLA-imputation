@@ -10,7 +10,7 @@ CookHLA_path = Path(config['CookHLA_path'])
 CookHLA_py = str(CookHLA_path /"CookHLA.py")
 CookHLA_ref = str(CookHLA_path / "example" / "HM_CEU_REF")
 sys.path.append(config['CookHLA_path'])
-allele_frequencies_folder = config['allele_frequencies_folder']
+allele_frequencies_folder =Path(config['allele_frequencies_folder'])
 
 import MakeGeneticMap
 
