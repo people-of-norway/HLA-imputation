@@ -40,6 +40,11 @@ if(!dir.exists(docs_folder)){
     dir.create(docs_folder)
 }
 
+
+if(!dir.exists(pipeout_folder)){
+    dir.create(pipeout_folder)
+}
+
 if(!dir.exists(probability_densities_folder)){
     dir.create(probability_densities_folder)
 }
