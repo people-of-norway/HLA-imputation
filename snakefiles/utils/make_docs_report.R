@@ -5,12 +5,12 @@ debug <- T
 
 if (debug) {
     args <- c(
-        "/home/oystein/hla_imputation_pipeout/2025.08.23/HIBAG/hibag",
-        "/home/oystein/hla_imputation_pipeout/2025.08.23/CookHLA/cookhla_output.MHC.HLA_IMPUTATION_OUT.alleles",
+        "/home/oystein/hla_imputation_pipeout/2025.09.16/HIBAG/hibag",
+        "/home/oystein/hla_imputation_pipeout/2025.09.16/CookHLA/cookhla_output.MHC.HLA_IMPUTATION_OUT.alleles",
         "/home/moba/geno/MobaPsychgenReleaseMarch23/MoBaPsychGen_v1/MoBaPsychGen_v1-ec-eur-batch-basic-qc.fam",
         "/home/oystein/github/HLA-imputation/snakefiles/resources/norwegian_allele_frequencies/common/HLA",
-        "/home/oystein/test/2025.08.23/docs",
-        "/home/oystein/test/2025.08.23/pipeout",
+        "/home/oystein/test/2025.09.16/docs/",
+        "/home/oystein/test/2025.09.16/pipeout/",
         "HLA Imputation report TEST"
     )
 } else {
@@ -26,12 +26,14 @@ docs_folder <- args[5]
 pipeout_folder <- args[6]
 title <- args[7]
 
-frequencies_folder <- paste0(docs_folder, "/frequencies/")
-probability_densities_folder <- paste0(docs_folder, "/probability_densities/")
-hibag_probability_folder <- paste0(docs_folder, "/probability_densities/hibag/")
-cookhla_probability_folder <- paste0(docs_folder, "/probability_densities/cookhla/")
-mendelian_error_table <- paste0(docs_folder, "/mendelian_error_rates")
-md_file <- paste0(docs_folder, "/report.md")
+frequencies_folder <- paste0(docs_folder, "frequencies/")
+probability_densities_folder <- paste0(docs_folder, "probability_densities/")
+hibag_probability_folder <- paste0(docs_folder, "probability_densities/hibag/")
+cookhla_probability_folder <- paste0(docs_folder, "probability_densities/cookhla/")
+mendelian_error_table <- paste0(docs_folder, "mendelian_error_rates")
+md_file <- paste0(docs_folder, "report.md")
+inconsistencies_pipeout_folder <- paste0(pipeout_folder, "inconsistencies/")
+inconsistencies_docs_folder <- paste0(docs_folder, "inconsistencies/")
 
 
 if(!dir.exists(docs_folder)){
@@ -53,6 +55,14 @@ if(!dir.exists(cookhla_probability_folder)){
 if(!dir.exists(frequencies_folder)){
     dir.create(frequencies_folder)
 }
+
+if(!dir.exists(inconsistencies_pipeout_folder)){
+    dir.create(inconsistencies_pipeout_folder)
+}
+if(!dir.exists(inconsistencies_docs_folder)){
+    dir.create(inconsistencies_docs_folder)
+}
+
 
 if (!file.exists(md_file)) {
   file.create(md_file)
@@ -268,15 +278,17 @@ split_inconsistent_alleles <- function(inconsistent_table){
     return(inconsistent_table)
 }
 
-format_and_compare <- function(hibag, cookhla){
+format_and_compare <- function(hibag, cookhla, hla){
     compare <- cookhla %>% select(iid, hla, cook1 = allele1, cook2 = allele2, cook_post1 = post1, cook_post2 = post2, cook_confidence = confidence, cook_mendel = mendel) %>% full_join(hibag %>% select(iid, hibag1 = allele1, hibag2 = allele2, hibag_prob = prob, hibag_matching = matching, hibag_mendel = mendel), by="iid")
     compare$inconsistencies <- apply(compare, 1, consistency_check)
     single_inconsistencies <- subset(compare, inconsistencies == 1) %>% select(hibag1, hibag2, cook1, cook2)
     single_inconsistencies$inconsistent_alleles <- apply(single_inconsistencies, 1, find_inconsistencies)
     single_inconsistencies <- split_inconsistent_alleles(single_inconsistencies) %>% select(hibag, cook)
-    double_inconsistencies <- subset(comare, inconsistencies == 2) %>% select(hibag1, hibag2, cook2, cook2)
+    single_inconsistencies <- cbind(hla=hla, single_inconsistencies)
+    double_inconsistencies <- subset(compare, inconsistencies == 2) %>% select(hibag1, hibag2, cook1, cook2)
+    double_inconsistencies <- cbind(hla=hla, double_inconsistencies)
     inconsistency_table <- table(single_inconsistencies$hibag, single_inconsistencies$cook)
-    return(list(compare, inconsistency_table))
+    return(list(compare, single_inconsistencies, double_inconsistencies, inconsistency_table))
 }
 
 write(
@@ -308,11 +320,11 @@ file = md_file,
 append = T
 )
 
-results_a <- format_and_compare(hibag_a, cookhla_a)
-results_b <- format_and_compare(hibag_b, cookhla_b)
-results_c <- format_and_compare(hibag_c, cookhla_c)
-results_dqb1 <- format_and_compare(hibag_dqb1, cookhla_dqb1)
-results_drb1 <- format_and_compare(hibag_drb1, cookhla_drb1)
+results_a <- format_and_compare(hibag_a, cookhla_a, "A")
+results_b <- format_and_compare(hibag_b, cookhla_b, "B")
+results_c <- format_and_compare(hibag_c, cookhla_c, "C")
+results_dqb1 <- format_and_compare(hibag_dqb1, cookhla_dqb1, "DQB1")
+results_drb1 <- format_and_compare(hibag_drb1, cookhla_drb1, "DRB1")
 
 write_inconsistency_table_row(results_a[[1]], "A")
 write_inconsistency_table_row(results_b[[1]], "B")
@@ -447,59 +459,27 @@ write(
 plot_prob_density(cookhla_dqa1$confidence, "CookHLA HLA-DQA1 probability density", dqa1_density_filename)
 
 
-# ref_a <- add_rare_row(read.table(paste0(ref_trunk_file, ".A"), header = T))
-# ref_b <- add_rare_row(read.table(paste0(ref_trunk_file, ".B"), header = T))
-# ref_c <- add_rare_row(read.table(paste0(ref_trunk_file, ".C"), header = T))
-# ref_dpb1 <- add_rare_row(read.table(paste0(ref_trunk_file, ".DPB1"), header = T))
-# ref_dqb1 <- add_rare_row(read.table(paste0(ref_trunk_file, ".DQB1"), header = T))
-# ref_drb1 <- add_rare_row(read.table(paste0(ref_trunk_file, ".DRB1"), header = T))
-
-
-# common_hibag_a <- extract_common_allele_freqs(hibag_a, ref_a)
-# common_hibag_b <- extract_common_allele_freqs(hibag_b, ref_b)
-# common_hibag_c <- extract_common_allele_freqs(hibag_c, ref_c)
-# common_hibag_dpb1 <- extract_common_allele_freqs(hibag_dpb1, ref_dpb1)
-# common_hibag_dqb1 <- extract_common_allele_freqs(hibag_dqb1, ref_dqb1)
-# common_hibag_drb1 <- extract_common_allele_freqs(hibag_drb1, ref_drb1)
-
-
-# common_cookhla_a <- extract_common_allele_freqs(cookhla_a, ref_a)
-# common_cookhla_b <- extract_common_allele_freqs(cookhla_b, ref_b)
-# common_cookhla_c <- extract_common_allele_freqs(cookhla_c, ref_c)
-# common_cookhla_dqb1 <- extract_common_allele_freqs(cookhla_dqb1, ref_dqb1)
-# common_cookhla_drb1 <- extract_common_allele_freqs(cookhla_drb1, ref_drb1)
-
-
-# plot_frequencies(common_cookhla_a, common_hibag_a, ref_a, "A", frequencies_folder)
-# plot_frequencies(common_cookhla_b, common_hibag_b, ref_b, "B", frequencies_folder)
-# plot_frequencies(common_cookhla_c, common_hibag_c, ref_c, "C", frequencies_folder)
-# plot_hibag_ref(common_hibag_dpb1, ref_dpb1, "DPB1", frequencies_folder)
-# plot_frequencies(common_cookhla_dqb1, common_hibag_dqb1, ref_dqb1, "DQB1", frequencies_folder)
-# plot_frequencies(common_cookhla_drb1, common_hibag_drb1, ref_drb1, "DRB1", frequencies_folder)
-
-# plot_prob_density(hibag_a$prob, "HIBAG HLA-A probability density", "hibag_a_probability_density.png", hibag_probability_folder)
-# plot_prob_density(hibag_b$prob, "HIBAG HLA-B probability density", "hibag_b_probability_density.png", hibag_probability_folder)
-# plot_prob_density(hibag_c$prob, "HIBAG HLA-C probability density", "hibag_c_probability_density.png", hibag_probability_folder)
-# plot_prob_density(hibag_dpb1$prob, "HIBAG HLA-DPB1 probability density", "hibag_dpb1_probability_density.png", hibag_probability_folder)
-# plot_prob_density(hibag_dqb1$prob, "HIBAG HLA-DQB1 probability density", "hibag_dqb1_probability_density.png", hibag_probability_folder)
-# plot_prob_density(hibag_drb1$prob, "HIBAG HLA-DRB1 probability density", "hibag_drb1_probability_density.png", hibag_probability_folder)
-
-# plot_prob_density(cookhla_a$confidence, "CookHLA HLA-A probability density", "cookhla_a_probability_density.png", cookhla_probability_folder)
-# plot_prob_density(cookhla_b$confidence, "CookHLA HLA-B probability density", "cookhla_b_probability_density.png", cookhla_probability_folder)
-# plot_prob_density(cookhla_c$confidence, "CookHLA HLA-C probability density", "cookhla_c_probability_density.png", cookhla_probability_folder)
-# plot_prob_density(cookhla_dqb1$confidence, "CookHLA HLA-DQB1 probability density", "cookhla_dqb1_probability_density.png", cookhla_probability_folder)
-# plot_prob_density(cookhla_drb1$confidence, "CookHLA HLA-DRB1 probability density", "cookhla_drb1_probability_density.png", cookhla_probability_folder)
-
-
-
-
-
-
-
 # Merge results
 
 merged_shared <- rbind(results_a[[1]], results_b[[1]], results_c[[1]], results_dqb1[[1]], results_drb1[[1]])
 hibag_dpb1_formatted <- cbind(hibag_dpb1[, 1, drop = FALSE], hla = "DPB1", hibag_dpb1[, -1, drop = FALSE]) %>% select(iid, hla, hibag1 = allele1, hibag2 = allele2, hibag_prob = prob, hibag_matching = matching)
 cook_dqa1_formatted <- cookhla_dqa1 %>% select(iid, hla, cook1 = allele1, cook2 = allele2, cook_post1 = post1, cook_post2 = post2, cook_confidence = confidence)
-merged <- bind_rows(merged_shared, hibag_dpb1_formatted, cook_dqa1_formatted)
+merged_all <- bind_rows(merged_shared, hibag_dpb1_formatted, cook_dqa1_formatted)
 
+merged_single_inconsistencies <- rbind(results_a[[2]], results_b[[2]], results_c[[2]], results_dqb1[[2]], results_drb1[[2]])
+merged_double_inconsistencies <- rbind(results_a[[3]], results_b[[3]], results_c[[3]], results_dqb1[[3]], results_drb1[[3]])
+
+write.table(x = merged_single_inconsistencies, file = paste0(inconsistencies_pipeout_folder, "single_inconsistencies_samples"), sep="\t", quote=F, row.names=F)
+write.table(x = merged_double_inconsistencies, file = paste0(inconsistencies_pipeout_folder, "double_inconsistencies_samples"), sep="\t", quote=F, row.names=F)
+write.table(x = merged_all, file = paste0(pipeout_folder,"merged_all"), sep="\t", quote=F, row.names=F)
+
+write_inconsistency_counts <- function(inconsistency_counts, hla){
+    write.table(x=inconsistency_counts, file = paste0(inconsistencies_docs_folder, "single_inconsistencies_counts_HLA-", hla), sep="\t", quote=F)
+    write.table(x=inconsistency_counts, file = paste0(inconsistencies_pipeout_folder, "single_inconsistencies_counts_HLA-", hla), sep="\t", quote=F)
+}
+
+write_inconsistency_counts(results_a[[4]], "A")
+write_inconsistency_counts(results_b[[4]], "B")
+write_inconsistency_counts(results_c[[4]], "C")
+write_inconsistency_counts(results_dqb1[[4]], "DQB1")
+write_inconsistency_counts(results_drb1[[4]], "DRB1")
