@@ -31,7 +31,7 @@ rule all:
         hla_dqb1 = str(output_folder / "HIBAG" / "hibag.DQB1"),
         hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1"),
         cookhla = str(output_folder / "CookHLA" / "cookhla_output.MHC.HLA_IMPUTATION_OUT.alleles"),
-        report = str(output_folder /"docs" / "report.md"),
+        report = str(github_docs / "report.md"),
         merged_alleles = str(output_folder / "merged_alleles")
 
 
