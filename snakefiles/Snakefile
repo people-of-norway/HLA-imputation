@@ -11,6 +11,7 @@ CookHLA_py = str(CookHLA_path /"CookHLA.py")
 CookHLA_ref = str(CookHLA_path / "example" / "HM_CEU_REF")
 sys.path.append(config['CookHLA_path'])
 allele_frequencies_folder =Path(config['allele_frequencies_folder'])
+github_docs = Path(os.path.dirname(workflow.basedir)) / 'docs' / config['release']
 
 import MakeGeneticMap
 
@@ -110,7 +111,7 @@ rule merge_and_make_docs_report:
         cookhla = rules.run_cookhla.output.alleles
     output:
         md = str(docs_folder / "report.md"),
-        merged_alleles = str(output_folder / "merged_alleles")
+        merged_alleles = str(github_docs / "merged_alleles")
     params:
         merge_report_script = "utils/merge_and_make_report.R",
         allele_frequencies_trunk = str(allele_frequencies_folder / "HLA")
