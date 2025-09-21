@@ -109,7 +109,7 @@ rule merge_and_make_docs_report:
         hibag_hla_dpb1 = rules.run_hibag.output.hla_dpb1,
         cookhla = rules.run_cookhla.output.alleles
     output:
-        md = str(output_folder /"docs" / "report.md"),
+        md = str(docs_folder / "report.md"),
         merged_alleles = str(output_folder / "merged_alleles")
     params:
         merge_report_script = "utils/merge_and_make_report.R",
