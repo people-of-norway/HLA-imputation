@@ -1,7 +1,7 @@
 library(dplyr)
 library(tidyr)
 
-debug <- F
+debug <- T
 
 if (debug) {
     args <- c(
@@ -306,7 +306,7 @@ write_inconsistency_table_row <- function(compare, hla){
 
 
 write(
-x = "### Number of samples with 0, 1 and 2 inconsistencies between HIBAG and CookHLA",
+x = "### Number of samples with 0, 1 and 2 inconsistent alleles between HIBAG and CookHLA",
 file = md_file,
 append = T
 )
@@ -330,12 +330,41 @@ write_inconsistency_table_row(results_dqa1[[1]], "DQA1")
 write_inconsistency_table_row(results_dqb1[[1]], "DQB1")
 write_inconsistency_table_row(results_drb1[[1]], "DRB1")
 
+write_aggregated_table <- function(table_data, hla) {
+
+    file_conn <- file(md_file, "a")
+    writeLines(paste0("### HLA-", hla), file_conn)
+    columns <- colnames(table_data)
+    header <- paste("|   | ", paste(columns, collapse = " | "), " |", sep = "")
+    separator <- paste("|---|---", paste(rep("---", length(columns)), collapse = "|---"), "---|", sep = "")
+    
+    writeLines(header, file_conn)
+    writeLines(separator, file_conn)
+    
+    for (row_name in rownames(table_data)) {
+        row_values <- as.vector(table_data[row_name, ])
+        row <- paste("| ", row_name, " | ", paste(row_values, collapse = " | "), " |", sep = "")
+        writeLines(row, file_conn)
+    }
+    
+    close(file_conn)
+}
+
 
 write(
-x = "\nTables with aggregated inconsistency counts per allele are found in the folder called inconsistencies_aggregated",
+x = "### Aggregated single inconsistency counts per allele (rows = HIBAG, columns = CookHLA)",
 file = md_file,
 append = T
 )
+
+write_aggregated_table(results_a[[4]], "A")
+write_aggregated_table(results_b[[4]], "B")
+write_aggregated_table(results_c[[4]], "C")
+write_aggregated_table(results_dqa1[[4]], "DQA1")
+write_aggregated_table(results_dqb1[[4]], "DQB1")
+write_aggregated_table(results_drb1[[4]], "DRB1")
+
+
 
 
 # Plot allele frequencies and probability densities
