@@ -390,7 +390,7 @@ plot_frequencies <- function(cookhla, hibag, ref, hla, absolute_filepath, relati
     barplot(freq_matrix,
         beside = TRUE,
         main = paste0("Allele frequencies for HLA-", hla),
-        xlab = "Allele", ylab = "Frequency", names.arg = ref$allele,
+        ylab = "Frequency", names.arg = ref$allele,
         col = c("lightblue", "pink", "darkgreen"), las = 2
     )
     legend("topright", legend = c("CookHLA", "HIBAG", "Reference"), fill = c("lightblue", "pink", "darkgreen"))
@@ -408,7 +408,7 @@ plot_hibag_ref <- function(hibag, ref, hla, absolute_filepath, relative_filepath
     barplot(freq_matrix,
         beside = TRUE,
         main = paste0("Allele frequencies for HLA-", hla),
-        xlab = "Allele", ylab = "Frequency", names.arg = ref$allele,
+        ylab = "Frequency", names.arg = ref$allele,
         col = c("pink", "darkgreen"), las = 2
     )
     legend("topright", legend = c("HIBAG", "Reference"), fill = c("pink", "darkgreen"))
