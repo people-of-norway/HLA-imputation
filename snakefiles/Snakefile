@@ -23,14 +23,6 @@ def plink_base(path):
 
 rule all:
     input:
-        hla_a = str(output_folder / "HIBAG" / "hibag.A"),
-        hla_b = str(output_folder /"HIBAG" / "hibag.B"),
-        hla_c = str(output_folder / "HIBAG" / "hibag.C"),
-        hla_drb1 = str(output_folder / "HIBAG" / "hibag.DRB1"),
-        hla_dqa1 = str(output_folder / "HIBAG" / "hibag.DQA1"),
-        hla_dqb1 = str(output_folder / "HIBAG" / "hibag.DQB1"),
-        hla_dpb1 = str(output_folder / "HIBAG" / "hibag.DPB1"),
-        cookhla = str(output_folder / "CookHLA" / "cookhla_output.MHC.HLA_IMPUTATION_OUT.alleles"),
         report = str(github_docs / "report.md"),
         merged_alleles = str(output_folder / "merged_alleles")
 
