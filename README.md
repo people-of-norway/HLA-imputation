@@ -18,7 +18,7 @@ You can now run the file /snakefiles/Snakefile using Snakemake (see https://snak
 
 The pipeline also outputs lists of samples with single and double inconsistencies in the folder {output_folder}/{release}/inconsistencies_samples/
 
-The [docs for the current release](https://github.com/people-of-norway/HLA-imputation/tree/main/docs/2025.09.16) show the report for the [beta release](https://github.com/fhi-beta/mobaGenetics-qc) of the genotype data from the [Norwegian Mother, Father and Child Cohort Study (MoBa)](https://www.fhi.no/en/studies/moba/).
+The [2025.09.2016 report](https://github.com/people-of-norway/HLA-imputation/blob/main/docs/2025.09.16/report.md) is the report for the [beta release](https://github.com/fhi-beta/mobaGenetics-qc) of the genotype data from the [Norwegian Mother, Father and Child Cohort Study (MoBa)](https://www.fhi.no/en/studies/moba/).
 
 Øystein Kapperud and Kinnie Le Roy have contributed to the work in this repository. It is currently maintained by Øystein Kapperud.
 
