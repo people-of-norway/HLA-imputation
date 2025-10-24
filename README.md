@@ -16,6 +16,8 @@ You can now run the file /snakefiles/Snakefile using Snakemake (see https://snak
 
 - Allele frequencies and probability density plots. The allele frequency plots compare the frequencies of the imputed alleles to the frequencies in the Norwegian population, published in Lande et al (2018). The probability density plots show the densities of the output 'prob' from HIBAG and 'confidence' from CookHLA (ideally these should show a sharp peak close to 1).
 
+The pipeline also outputs lists of samples with single and double inconsistencies in the folder {output_folder}/{release}/inconsistencies_samples/
+
 Øystein Kapperud and Kinnie Le Roy have contributed to the work in this repository. It is currently maintained by Øystein Kapperud.
 
 References:
