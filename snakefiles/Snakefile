@@ -111,10 +111,15 @@ rule imgt2seq:
         output_dir = str(output_folder / "HATK")
     conda:
         str(HATK_path / "HATK_LINUX.yml")
-    run:
-        os.chdir(HATK_path)
-        from IMGT2Seq.__main__ import HATK_IMGT2Seq
-        HATK_IMGT2Seq(imgt_version, hg, params.output_dir, str(IMGT_path), False, False, False, False, False, False)
+    shell:
+         """
+         cd {HATK_path}
+         python -m IMGT2Seq --imgt {imgt_version} --imgt-dir {IMGT_path} --hg {hg} --out {params.output_dir} --2field
+         """
+    # run:
+        # os.chdir(HATK_path)
+        # from IMGT2Seq.__main__ import HATK_IMGT2Seq
+        # HATK_IMGT2Seq(imgt_version, hg, params.output_dir, str(IMGT_path), False, False, False, False, False, False)
 
 
 rule make_chped_from_hibag:
