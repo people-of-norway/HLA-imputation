@@ -2,6 +2,7 @@ from pathlib import Path
 import sys
 import os
 import re
+import subprocess
 
 configfile: "parameters/config.yaml"
 shell.executable("/bin/bash")
@@ -153,14 +154,15 @@ rule make_chped_from_cookhla:
         hat = rules.imgt2seq.output.hat
     output:
         chped = str(output_folder / "HATK" / f"cookhla.imgt{imgt_version}.2field.chped")
-    params:
-        out_trunk = plink_base(plink_base(output.chped))
     conda:
         str(HATK_path / "HATK_LINUX.yml")
     shell:
         """
+        out_full="{output.chped}"
+        out_no_ext="${{out_full%.*}}"
+        out_trunk="${{out_no_ext%.*}}"
         cd {HATK_path}
-        python -m HATK_NomenCleaner --hped {input.hped} --hat {input.hat} --out {params.out_trunk} --2field
+        python -m HATK_NomenCleaner --hped {input.hped} --hat {input.hat} --out $out_trunk --2field
         """
     # run:
     #     os.chdir(HATK_path)
