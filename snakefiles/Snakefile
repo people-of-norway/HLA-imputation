@@ -114,7 +114,7 @@ rule imgt2seq:
     run:
         os.chdir(HATK_path)
         from IMGT2Seq.__main__ import HATK_IMGT2Seq
-        HATK_IMGT2Seq(imgt_version, hg, params.output_dir, IMGT_path, False, False, False, False, False, False)
+        HATK_IMGT2Seq(imgt_version, hg, params.output_dir, str(IMGT_path), False, False, False, False, False, False)
 
 
 rule make_chped_from_hibag:
