@@ -29,8 +29,8 @@ def plink_base(path):
 
 rule all:
     input:
-        # report = str(github_docs / "report.md"),
-        # merged_alleles = str(output_folder / "merged_alleles")
+        report = str(github_docs / "report.md"),
+        merged_alleles = str(output_folder / "merged_alleles"),
         cookhla_bedset = multiext(str(output_folder / "HATK" / "cookhla_bmarker"), ".bed", ".bim", ".fam"),
         hibag_bedset = multiext(str(output_folder / "HATK" / "hibag_bmarker"), ".bed", ".bim", ".fam")
 
@@ -115,13 +115,13 @@ rule imgt2seq:
 
 rule make_chped_from_hibag:
     input:
-        hla_a = "/home/oystein/hla_imputation_pipeout/2025.09.16/HIBAG/hibag.A", #rules.run_hibag.output.hla_a,
-        hla_b = "/home/oystein/hla_imputation_pipeout/2025.09.16/HIBAG/hibag.B", #rules.run_hibag.output.hla_b,
-        hla_c = "/home/oystein/hla_imputation_pipeout/2025.09.16/HIBAG/hibag.C", #rules.run_hibag.output.hla_c,
-        hla_drb1 = "/home/oystein/hla_imputation_pipeout/2025.09.16/HIBAG/hibag.DRB1", #rules.run_hibag.output.hla_drb1,
-        hla_dqa1 = "/home/oystein/hla_imputation_pipeout/2025.09.16/HIBAG/hibag.DQA1", #rules.run_hibag.output.hla_dqa1,
-        hla_dqb1 = "/home/oystein/hla_imputation_pipeout/2025.09.16/HIBAG/hibag.DQB1", #rules.run_hibag.output.hla_dqb1,
-        hla_dpb1 = "/home/oystein/hla_imputation_pipeout/2025.09.16/HIBAG/hibag.DPB1", #rules.run_hibag.output.hla_dpb1
+        hla_a = rules.run_hibag.output.hla_a,
+        hla_b = rules.run_hibag.output.hla_b,
+        hla_c = rules.run_hibag.output.hla_c,
+        hla_drb1 = rules.run_hibag.output.hla_drb1,
+        hla_dqa1 = rules.run_hibag.output.hla_dqa1,
+        hla_dqb1 = rules.run_hibag.output.hla_dqb1,
+        hla_dpb1 = rules.run_hibag.output.hla_dpb1,
     output:
         chped = str(output_folder / "HATK" / "hibag_hla2hped.2field.chped")
     params:
@@ -138,7 +138,7 @@ rule make_chped_from_hibag:
 
 rule make_chped_from_cookhla:
     input:
-        hped = "/home/oystein/hla_imputation_pipeout/2025.09.16/CookHLA/cookhla_output.MHC.HLA_IMPUTATION_OUT.hped", # rules.run_cookhla.output.hped,
+        hped = rules.run_cookhla.output.hped,
         hat = rules.imgt2seq.output.hat
     output:
         chped = str(output_folder / "HATK" / f"cookhla.imgt{imgt_version}.2field.chped")
