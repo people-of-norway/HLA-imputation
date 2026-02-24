@@ -1,5 +1,6 @@
 from pathlib import Path
 import sys
+import os
 
 configfile: "parameters/config.yaml"
 shell.executable("/bin/bash")
@@ -9,7 +10,11 @@ docs_folder = output_folder / "docs"
 CookHLA_path = Path(config['CookHLA_path'])
 CookHLA_py = str(CookHLA_path /"CookHLA.py")
 CookHLA_ref = str(CookHLA_path / "example" / "HM_CEU_REF")
+HATK_path = Path(config['HATK_path'])
 sys.path.append(config['CookHLA_path'])
+sys.path.append(config['HATK_path'])
+hg = config['hg']
+imgt_version = config['IMGT_version']
 allele_frequencies_folder =Path(config['allele_frequencies_folder'])
 github_docs = Path(os.path.dirname(workflow.basedir)) / 'docs' / config['release']
 
@@ -23,8 +28,11 @@ def plink_base(path):
 
 rule all:
     input:
-        report = str(github_docs / "report.md"),
-        merged_alleles = str(output_folder / "merged_alleles")
+        # report = str(github_docs / "report.md"),
+        # merged_alleles = str(output_folder / "merged_alleles")
+        cookhla_bedset = multiext(str(output_folder / "HATK" / "cookhla_bmarker"), ".bed", ".bim", ".fam"),
+        hibag_bedset = multiext(str(output_folder / "HATK" / "hibag_bmarker"), ".bed", ".bim", ".fam")
+
 
 
 rule extract_hla:
@@ -74,7 +82,8 @@ rule run_cookhla:
     input:
         bedset = rules.extract_hla.output.bedset
     output:
-        alleles = str(output_folder / "CookHLA" / "cookhla_output.MHC.HLA_IMPUTATION_OUT.alleles")
+        alleles = str(output_folder / "CookHLA" / "cookhla_output.MHC.HLA_IMPUTATION_OUT.alleles"),
+        hped = str(output_folder / "CookHLA" / "cookhla_output.MHC.HLA_IMPUTATION_OUT.hped")
     conda:
         str(CookHLA_path / "CookHLA_LINUX.yml")
     params:
@@ -89,6 +98,94 @@ rule run_cookhla:
         cd {CookHLA_path}
         python {CookHLA_py} -i $in_trunk -hg 19 -o $out_trunk -ref {CookHLA_ref} -mem {params.mem} -nth {threads}
         """
+
+rule imgt2seq:
+    input:
+        fasta = str(IMGT_path / "hla_prot.fasta")
+    output:
+        aa_dict = str(output_folder / "HATK" / f"HLA_DICTIONARY_AA.hg{hg}.imgt{imgt_version}.txt"),
+        snp_dict = str(output_folder / "HATK" / f"HLA_DICTIONARY_SNP.hg{hg}.imgt{imgt_version}.txt"),
+        hat = str(output_folder / "HATK" / f"HLA_ALLELE_TABLE.imgt{imgt_version}.hat")
+    run:
+        os.chdir(HATK_path)
+        from IMGT2Seq.__main__ import HATK_IMGT2Seq
+        HATK_IMGT2Seq(imgt_version, hg, IMGT_path, False, False, False, False, False, False)
+
+
+rule make_chped_from_hibag:
+    input:
+        hla_a = "/home/oystein/hla_imputation_pipeout/2025.09.16/HIBAG/hibag.A", #rules.run_hibag.output.hla_a,
+        hla_b = "/home/oystein/hla_imputation_pipeout/2025.09.16/HIBAG/hibag.B", #rules.run_hibag.output.hla_b,
+        hla_c = "/home/oystein/hla_imputation_pipeout/2025.09.16/HIBAG/hibag.C", #rules.run_hibag.output.hla_c,
+        hla_drb1 = "/home/oystein/hla_imputation_pipeout/2025.09.16/HIBAG/hibag.DRB1", #rules.run_hibag.output.hla_drb1,
+        hla_dqa1 = "/home/oystein/hla_imputation_pipeout/2025.09.16/HIBAG/hibag.DQA1", #rules.run_hibag.output.hla_dqa1,
+        hla_dqb1 = "/home/oystein/hla_imputation_pipeout/2025.09.16/HIBAG/hibag.DQB1", #rules.run_hibag.output.hla_dqb1,
+        hla_dpb1 = "/home/oystein/hla_imputation_pipeout/2025.09.16/HIBAG/hibag.DPB1", #rules.run_hibag.output.hla_dpb1
+    output:
+        chped = str(output_folder / "HATK" / "hibag_hla2hped.2field.chped")
+    params:
+        HLA2PED_script = str(HATK_path / "HLA2HPED" / "HLA2HPED.py")
+    conda:
+        str(HATK_path / "HATK_LINUX.yml")
+    run:
+        out_trunk = plink_base(output.chped)
+        cmd = f"""
+        cd {HATK_path}
+        python {params.HLA2PED_script} --platform HIBAG --out {out_trunk} -rhped {input.hla_a} {input.hla_b} {input.hla_c} NA {input.hla_dpb1} {input.hla_dqa1} {input.hla_dqb1} {input.hla_drb1}
+        """
+        shell(cmd)
+
+rule make_chped_from_cookhla:
+    input:
+        hped = "/home/oystein/hla_imputation_pipeout/2025.09.16/CookHLA/cookhla_output.MHC.HLA_IMPUTATION_OUT.hped", # rules.run_cookhla.output.hped,
+        hat = rules.imgt2seq.output.hat
+    output:
+        chped = str(output_folder / "HATK" / f"cookhla.imgt{imgt_version}.2field.chped")
+    conda:
+        str(HATK_path / "HATK_LINUX.yml")
+    run:
+        os.chdir(HATK_path)
+        from NomenCleaner.__main__ import HATK_NomenCleaner
+        out_trunk = plink(plink_base(plink_base(output.chped)))
+        HATK_NomenCleaner(input.hped, input.hat, out_trunk, False, False, False, False, False, False)
+
+
+rule hibag_make_binary:
+    input:
+        bedset = rules.extract_hla.output.bedset,
+        chped = rules.make_chped_from_hibag.output.chped,
+        aa_dict = rules.imgt2seq.output.aa_dict,
+        snp_dict = rules.imgt2seq.output.snp_dict
+    output:
+        bedset = multiext(str(output_folder / "HATK" / "hibag_bmarker"), ".bed", ".bim", ".fam")
+    conda:
+        str(HATK_path / "HATK_LINUX.yml")
+    run:
+        in_trunk = plink_base(input.bedset[0])
+        out_trunk = plink_base(output.bedset[0])
+        os.chdir(HATK_path)
+        from bMarkerGenerator.__main__ import HATK_bMarkerGenertor
+        HATK_bMarkerGenertor(input.chped, out_trunk, hg, input.aa_dict, input.snp_dict, in_trunk)
+
+
+rule cookhla_make_binary:
+    input:
+        bedset = rules.extract_hla.output.bedset,
+        chped = rules.make_chped_from_cookhla.output.chped,
+        aa_dict = rules.imgt2seq.output.aa_dict,
+        snp_dict = rules.imgt2seq.output.snp_dict
+    output:
+        bedset = multiext(str(output_folder / "HATK" / "cookhla_bmarker"), ".bed", ".bim", ".fam")
+    conda:
+        str(HATK_path / "HATK_LINUX.yml")
+    run:
+        in_trunk = plink_base(input.bedset[0])
+        out_trunk = plink_base(output.bedset[0])
+        os.chdir(HATK_path)
+        from bMarkerGenerator.__main__ import HATK_bMarkerGenertor
+        HATK_bMarkerGenertor(input.chped, out_trunk, hg, input.aa_dict, input.snp_dict, in_trunk)
+
+
 
 rule merge_and_make_docs_report:
     input:
