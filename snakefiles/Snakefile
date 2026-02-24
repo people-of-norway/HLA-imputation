@@ -11,6 +11,7 @@ CookHLA_path = Path(config['CookHLA_path'])
 CookHLA_py = str(CookHLA_path /"CookHLA.py")
 CookHLA_ref = str(CookHLA_path / "example" / "HM_CEU_REF")
 HATK_path = Path(config['HATK_path'])
+IMGT_path = Path(config['IMGT_path'])
 sys.path.append(config['CookHLA_path'])
 sys.path.append(config['HATK_path'])
 hg = config['hg']
