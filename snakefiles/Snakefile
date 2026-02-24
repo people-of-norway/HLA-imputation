@@ -107,7 +107,7 @@ rule imgt2seq:
         fasta = str(IMGT_path / "hla_prot.fasta")
     output:
         aa_dict = str(output_folder / "HATK" / f"HLA_DICTIONARY_AA.hg{hg}.imgt{imgt_version}.txt"),
-        snp_dict = str(output_folder / "HATK" / f"HLA_DICTIONARY_SNP.hg{hg}.imgt{imgt_version}.txt"),
+        snp_dict = str(output_folder / "HATK" / f"HLA_DICTIONARY_SNPS.hg{hg}.imgt{imgt_version}.txt"),
         hat = str(output_folder / "HATK" / f"HLA_ALLELE_TABLE.imgt{imgt_version}.hat")
     params:
         output_dir = str(output_folder / "HATK")
