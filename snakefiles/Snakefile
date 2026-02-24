@@ -107,10 +107,14 @@ rule imgt2seq:
         aa_dict = str(output_folder / "HATK" / f"HLA_DICTIONARY_AA.hg{hg}.imgt{imgt_version}.txt"),
         snp_dict = str(output_folder / "HATK" / f"HLA_DICTIONARY_SNP.hg{hg}.imgt{imgt_version}.txt"),
         hat = str(output_folder / "HATK" / f"HLA_ALLELE_TABLE.imgt{imgt_version}.hat")
+    params:
+        output_dir = str(output_folder / "HATK")
+    conda:
+        str(HATK_path / "HATK_LINUX.yml")
     run:
         os.chdir(HATK_path)
         from IMGT2Seq.__main__ import HATK_IMGT2Seq
-        HATK_IMGT2Seq(imgt_version, hg, IMGT_path, False, False, False, False, False, False)
+        HATK_IMGT2Seq(imgt_version, hg, params.output_dir, IMGT_path, False, False, False, False, False, False)
 
 
 rule make_chped_from_hibag:
