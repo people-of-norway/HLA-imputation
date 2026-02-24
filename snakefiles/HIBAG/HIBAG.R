@@ -1,6 +1,6 @@
 
 library(HIBAG)
-debug <- T
+debug <- F
 
 if (debug) {
     input_trunk <- "/home/oystein/hla_imputation_pipeout/2025.09.16/extract_hla"
@@ -27,7 +27,7 @@ mlst<-get(load(modelfile))
 geno <- hlaBED2Geno(bed.fn=paste(input_trunk,".bed",sep = ""), 
                         fam.fn=paste(input_trunk,".fam",sep = ""), 
                         bim.fn=paste(input_trunk,".bim",sep = ""))
-|
+
 #### IMPUTATION AND ALLELES FILES FOR EACH GENE ####
 
 create_model_predict_and_write <- function(object, geno, output_hla, output_aa, threads){
