@@ -34,8 +34,8 @@ rule all:
         # report = str(github_docs / "report.md"),
         # merged_alleles = str(output_folder / "merged_alleles"),
         # cookhla_bedset = multiext(str(output_folder / "HATK" / "cookhla_bmarker"), ".bed", ".bim", ".fam"),
-        hibag_bedset = multiext(str(output_folder / "HATK" / "hibag_bmarker"), ".bed", ".bim", ".fam")
-
+        # hibag_bedset = multiext(str(output_folder / "HATK" / "hibag_bmarker"), ".bed", ".bim", ".fam")
+        str(output_folder / "HATK" / "hibag_hla2hped.2field.hped")
 
 
 rule extract_hla:

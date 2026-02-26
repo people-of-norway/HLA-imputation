@@ -21,7 +21,9 @@ hibag <- read.table(input, header=T, sep = "\t")
 hibag$fid <- hibag$sample.id
 hibag$hla <- hla
 
+# hibag$alleles_1field <- paste0(hibag$allele1, ",", s(hibag$allele2))
+
 hibag$alleles_1field <- paste0(sapply(hibag$allele1, function(x) strsplit(x, split = ":")[[1]][1]), ",", sapply(hibag$allele2, function(x) strsplit(x, split = ":")[[1]][1]))
-hibag$alleles_2field <- paste0(sapply(hibag$allele1, function(x) gsub(":", "", x)), ",", sapply(hibag$allele2, function(x) gsub(":", "", x)))
+hibag$alleles_2field <- paste0(hibag$allele1, ",", hibag$allele2)
 hla2hped_input <- hibag %>% select(fid, sample.id, hla, alleles_1field, alleles_2field, prob, matching)
 write.table(hla2hped_input, file=output, col.names=F, row.names=F, sep = "\t", quote=F)
