@@ -142,7 +142,7 @@ rule make_hped_from_hibag:
     conda:
         str(HATK_path / "HATK_LINUX.yml")
     run:
-        out_trunk = plink_base(output.chped)
+        out_trunk = plink_base(output.hped)
         cmd = f"""
         cd {HATK_path}
         python {params.HLA2PED_script} --platform HIBAG --out {out_trunk} -rhped {input.hla_a} {input.hla_b} {input.hla_c} NA {input.hla_dpb1} {input.hla_dqa1} {input.hla_dqb1} {input.hla_drb1}
