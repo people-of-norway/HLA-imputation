@@ -141,8 +141,7 @@ rule convert_hibag_to_hla2hped_input:
         hla_drb1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DRB1"),
         hla_dqa1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DQA1"),
         hla_dqb1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DQB1"),
-        hla_dpb1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DPB1"),
-        hla2hped_input = str(output_folder / "HIBAG" / "hibag.hla2hped_input")
+        hla_dpb1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DPB1")
     params:
         hla2hped_script = "HIBAG/hibag_files_for_hla2hped.R"
 
