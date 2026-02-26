@@ -34,8 +34,8 @@ rule all:
         # report = str(github_docs / "report.md"),
         # merged_alleles = str(output_folder / "merged_alleles"),
         # cookhla_bedset = multiext(str(output_folder / "HATK" / "cookhla_bmarker"), ".bed", ".bim", ".fam"),
-        # hibag_bedset = multiext(str(output_folder / "HATK" / "hibag_bmarker"), ".bed", ".bim", ".fam")
-        str(output_folder / "HATK" / "hibag_hla2hped.2field.hped")
+        hibag_bedset = multiext(str(output_folder / "HATK" / "hibag_bmarker"), ".bed", ".bim", ".fam")
+        # str(output_folder / "HATK" / "hibag_hla2hped.2field.hped")
 
 
 rule extract_hla:
@@ -125,76 +125,76 @@ rule imgt2seq:
         # from IMGT2Seq.__main__ import HATK_IMGT2Seq
         # HATK_IMGT2Seq(imgt_version, hg, params.output_dir, str(IMGT_path), False, False, False, False, False, False)
 
-rule convert_hibag_to_hla2hped_input:
-    input:
-        hla_a = rules.run_hibag.output.hla_a,
-        hla_b = rules.run_hibag.output.hla_b,
-        hla_c = rules.run_hibag.output.hla_c,
-        hla_drb1 = rules.run_hibag.output.hla_drb1,
-        hla_dqa1 = rules.run_hibag.output.hla_dqa1,
-        hla_dqb1 = rules.run_hibag.output.hla_dqb1,
-        hla_dpb1 = rules.run_hibag.output.hla_dpb1
-    output:
-        hla_a = str(output_folder / "HIBAG" / "hibag.hla2hped_input.A"),
-        hla_b = str(output_folder / "HIBAG" / "hibag.hla2hped_input.B"),
-        hla_c = str(output_folder / "HIBAG" / "hibag.hla2hped_input.C"),
-        hla_drb1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DRB1"),
-        hla_dqa1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DQA1"),
-        hla_dqb1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DQB1"),
-        hla_dpb1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DPB1")
-    params:
-        hla2hped_script = "HIBAG/hibag_files_for_hla2hped.R"
+# rule convert_hibag_to_hla2hped_input:
+#     input:
+#         hla_a = rules.run_hibag.output.hla_a,
+#         hla_b = rules.run_hibag.output.hla_b,
+#         hla_c = rules.run_hibag.output.hla_c,
+#         hla_drb1 = rules.run_hibag.output.hla_drb1,
+#         hla_dqa1 = rules.run_hibag.output.hla_dqa1,
+#         hla_dqb1 = rules.run_hibag.output.hla_dqb1,
+#         hla_dpb1 = rules.run_hibag.output.hla_dpb1
+#     output:
+#         hla_a = str(output_folder / "HIBAG" / "hibag.hla2hped_input.A"),
+#         hla_b = str(output_folder / "HIBAG" / "hibag.hla2hped_input.B"),
+#         hla_c = str(output_folder / "HIBAG" / "hibag.hla2hped_input.C"),
+#         hla_drb1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DRB1"),
+#         hla_dqa1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DQA1"),
+#         hla_dqb1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DQB1"),
+#         hla_dpb1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DPB1")
+#     params:
+#         hla2hped_script = "HIBAG/hibag_files_for_hla2hped.R"
 
-    shell:
-        """
-        Rscript {params.hla2hped_script} {input.hla_a} A {output.hla_a}
-        Rscript {params.hla2hped_script} {input.hla_b} B {output.hla_b}
-        Rscript {params.hla2hped_script} {input.hla_c} C {output.hla_c}
-        Rscript {params.hla2hped_script} {input.hla_drb1} DRB1 {output.hla_drb1}
-        Rscript {params.hla2hped_script} {input.hla_dqa1} DQA1 {output.hla_dqa1}
-        Rscript {params.hla2hped_script} {input.hla_dqb1} DQB1 {output.hla_dqb1}
-        Rscript {params.hla2hped_script} {input.hla_dpb1} DPB1 {output.hla_dpb1}
-        """
+#     shell:
+#         """
+#         Rscript {params.hla2hped_script} {input.hla_a} A {output.hla_a}
+#         Rscript {params.hla2hped_script} {input.hla_b} B {output.hla_b}
+#         Rscript {params.hla2hped_script} {input.hla_c} C {output.hla_c}
+#         Rscript {params.hla2hped_script} {input.hla_drb1} DRB1 {output.hla_drb1}
+#         Rscript {params.hla2hped_script} {input.hla_dqa1} DQA1 {output.hla_dqa1}
+#         Rscript {params.hla2hped_script} {input.hla_dqb1} DQB1 {output.hla_dqb1}
+#         Rscript {params.hla2hped_script} {input.hla_dpb1} DPB1 {output.hla_dpb1}
+#         """
 
-rule make_hped_from_hibag:
-    input:
-        hla_a = rules.convert_hibag_to_hla2hped_input.output.hla_a,
-        hla_b = rules.convert_hibag_to_hla2hped_input.output.hla_b,
-        hla_c = rules.convert_hibag_to_hla2hped_input.output.hla_c,
-        hla_drb1 = rules.convert_hibag_to_hla2hped_input.output.hla_drb1,
-        hla_dqa1 = rules.convert_hibag_to_hla2hped_input.output.hla_dqa1,
-        hla_dqb1 = rules.convert_hibag_to_hla2hped_input.output.hla_dqb1,
-        hla_dpb1 = rules.convert_hibag_to_hla2hped_input.output.hla_dpb1
-    output:
-        hped = str(output_folder / "HATK" / "hibag_hla2hped.2field.hped")
-    params:
-        HLA2PED_script = str(HATK_path / "HLA2HPED" / "HLA2HPED.py")
-    conda:
-        str(HATK_path / "HATK_LINUX.yml")
-    run:
-        out_trunk = plink_base(output.hped)
-        cmd = f"""
-        cd {HATK_path}
-        python {params.HLA2PED_script} --platform HIBAG --out {out_trunk} -rhped {input.hla_a} {input.hla_b} {input.hla_c} NA {input.hla_dpb1} {input.hla_dqa1} {input.hla_dqb1} {input.hla_drb1}
-        """
-        shell(cmd)
+# rule make_hped_from_hibag:
+#     input:
+#         hla_a = rules.convert_hibag_to_hla2hped_input.output.hla_a,
+#         hla_b = rules.convert_hibag_to_hla2hped_input.output.hla_b,
+#         hla_c = rules.convert_hibag_to_hla2hped_input.output.hla_c,
+#         hla_drb1 = rules.convert_hibag_to_hla2hped_input.output.hla_drb1,
+#         hla_dqa1 = rules.convert_hibag_to_hla2hped_input.output.hla_dqa1,
+#         hla_dqb1 = rules.convert_hibag_to_hla2hped_input.output.hla_dqb1,
+#         hla_dpb1 = rules.convert_hibag_to_hla2hped_input.output.hla_dpb1
+#     output:
+#         hped = str(output_folder / "HATK" / "hibag_hla2hped.2field.hped")
+#     params:
+#         HLA2PED_script = str(HATK_path / "HLA2HPED" / "HLA2HPED.py")
+#     conda:
+#         str(HATK_path / "HATK_LINUX.yml")
+#     run:
+#         out_trunk = plink_base(output.hped)
+#         cmd = f"""
+#         cd {HATK_path}
+#         python {params.HLA2PED_script} --platform HIBAG --out {out_trunk} -rhped {input.hla_a} {input.hla_b} {input.hla_c} NA {input.hla_dpb1} {input.hla_dqa1} {input.hla_dqb1} {input.hla_drb1}
+#         """
+#         shell(cmd)
 
 rule make_chped_from_hibag:
     input:
-        hped = rules.make_hped_from_hibag.output.hped,
-        hat = rules.imgt2seq.output.hat
+        hibag_hla_a = rules.run_hibag.output.hla_a,
+        hibag_hla_b = rules.run_hibag.output.hla_b,
+        hibag_hla_c = rules.run_hibag.output.hla_c,
+        hibag_hla_drb1 = rules.run_hibag.output.hla_drb1,
+        hibag_hla_dqa1 = rules.run_hibag.output.hla_dqa1,
+        hibag_hla_dqb1 = rules.run_hibag.output.hla_dqb1,
+        hibag_hla_dpb1 = rules.run_hibag.output.hla_dpb1,
     output:
-        chped = str(output_folder / "HATK" / f"hibag.imgt{imgt_version}.2field.chped")
-    conda:
-        str(HATK_path / "HATK_LINUX.yml")
-    shell:
-        """
-        out_full="{output.chped}"
-        out_no_ext="${{out_full%.*}}"
-        out_trunk="${{out_no_ext%.*}}"
-        cd {HATK_path}
-        python -m NomenCleaner --hped {input.hped} --hat {input.hat} --out $out_trunk --2field
-        """
+        chped = str(output_folder / "HIBAG" / f"hibag.chped")
+    params:
+        r_script = "utils/hibag_to_chped.R"
+    run:
+        in_trunk_hibag = plink_base(input.hibag_hla_a)
+        subprocess.run(["Rscript", params.r_script, in_trunk_hibag, output.chped])
 
 rule make_chped_from_cookhla:
     input:
@@ -275,7 +275,7 @@ rule merge_and_make_docs_report:
         hibag_hla_b = rules.run_hibag.output.hla_b,
         hibag_hla_c = rules.run_hibag.output.hla_c,
         hibag_hla_drb1 = rules.run_hibag.output.hla_drb1,
-        hibag_hla_dqa1 = rules.run_hibag.output.hla_dqb1,
+        hibag_hla_dqa1 = rules.run_hibag.output.hla_dqa1,
         hibag_hla_dqb1 = rules.run_hibag.output.hla_dqb1,
         hibag_hla_dpb1 = rules.run_hibag.output.hla_dpb1,
         cookhla = rules.run_cookhla.output.alleles
