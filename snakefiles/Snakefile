@@ -126,7 +126,7 @@ rule imgt2seq:
         # HATK_IMGT2Seq(imgt_version, hg, params.output_dir, str(IMGT_path), False, False, False, False, False, False)
 
 
-rule make_chped_from_hibag:
+rule make_hped_from_hibag:
     input:
         hla_a = rules.run_hibag.output.hla_a,
         hla_b = rules.run_hibag.output.hla_b,
@@ -136,7 +136,7 @@ rule make_chped_from_hibag:
         hla_dqb1 = rules.run_hibag.output.hla_dqb1,
         hla_dpb1 = rules.run_hibag.output.hla_dpb1,
     output:
-        chped = str(output_folder / "HATK" / "hibag_hla2hped.2field.chped")
+        hped = str(output_folder / "HATK" / "hibag_hla2hped.2field.hped")
     params:
         HLA2PED_script = str(HATK_path / "HLA2HPED" / "HLA2HPED.py")
     conda:
@@ -148,6 +148,23 @@ rule make_chped_from_hibag:
         python {params.HLA2PED_script} --platform HIBAG --out {out_trunk} -rhped {input.hla_a} {input.hla_b} {input.hla_c} NA {input.hla_dpb1} {input.hla_dqa1} {input.hla_dqb1} {input.hla_drb1}
         """
         shell(cmd)
+
+rule make_chped_from_hibag:
+    input:
+        hped = rules.make_hped_from_hibag.output.hped,
+        hat = rules.imgt2seq.output.hat
+    output:
+        chped = str(output_folder / "HATK" / f"hibag.imgt{imgt_version}.2field.chped")
+    conda:
+        str(HATK_path / "HATK_LINUX.yml")
+    shell:
+        """
+        out_full="{output.chped}"
+        out_no_ext="${{out_full%.*}}"
+        out_trunk="${{out_no_ext%.*}}"
+        cd {HATK_path}
+        python -m HATK_NomenCleaner --hped {input.hped} --hat {input.hat} --out $out_trunk --2field
+        """
 
 rule make_chped_from_cookhla:
     input:
