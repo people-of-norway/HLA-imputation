@@ -163,7 +163,7 @@ rule make_chped_from_hibag:
         out_no_ext="${{out_full%.*}}"
         out_trunk="${{out_no_ext%.*}}"
         cd {HATK_path}
-        python -m HATK_NomenCleaner --hped {input.hped} --hat {input.hat} --out $out_trunk --2field
+        python -m NomenCleaner --hped {input.hped} --hat {input.hat} --out $out_trunk --2field
         """
 
 rule make_chped_from_cookhla:
@@ -180,7 +180,7 @@ rule make_chped_from_cookhla:
         out_no_ext="${{out_full%.*}}"
         out_trunk="${{out_no_ext%.*}}"
         cd {HATK_path}
-        python -m HATK_NomenCleaner --hped {input.hped} --hat {input.hat} --out $out_trunk --2field
+        python -m NomenCleaner --hped {input.hped} --hat {input.hat} --out $out_trunk --2field
         """
     # run:
     #     os.chdir(HATK_path)
