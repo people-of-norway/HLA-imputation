@@ -125,8 +125,7 @@ rule imgt2seq:
         # from IMGT2Seq.__main__ import HATK_IMGT2Seq
         # HATK_IMGT2Seq(imgt_version, hg, params.output_dir, str(IMGT_path), False, False, False, False, False, False)
 
-
-rule make_hped_from_hibag:
+rule convert_hibag_to_hla2hped_input:
     input:
         hla_a = rules.run_hibag.output.hla_a,
         hla_b = rules.run_hibag.output.hla_b,
@@ -134,7 +133,39 @@ rule make_hped_from_hibag:
         hla_drb1 = rules.run_hibag.output.hla_drb1,
         hla_dqa1 = rules.run_hibag.output.hla_dqa1,
         hla_dqb1 = rules.run_hibag.output.hla_dqb1,
-        hla_dpb1 = rules.run_hibag.output.hla_dpb1,
+        hla_dpb1 = rules.run_hibag.output.hla_dpb1
+    output:
+        hla_a = str(output_folder / "HIBAG" / "hibag.hla2hped_input.A"),
+        hla_b = str(output_folder / "HIBAG" / "hibag.hla2hped_input.B"),
+        hla_c = str(output_folder / "HIBAG" / "hibag.hla2hped_input.C"),
+        hla_drb1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DRB1"),
+        hla_dqa1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DQA1"),
+        hla_dqb1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DQB1"),
+        hla_dpb1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DPB1")
+        hla2hped_input = str(output_folder / "HIBAG" / "hibag.hla2hped_input")
+    params:
+        hla2hped_script = "HIBAG/hibag_files_for_hla2hped.R"
+
+    shell:
+        """
+        Rscript {params.hla2hped_script} {input.hla_a} A {output.hla_a}
+        Rscript {params.hla2hped_script} {input.hla_b} B {output.hla_b}
+        Rscript {params.hla2hped_script} {input.hla_c} C {output.hla_c}
+        Rscript {params.hla2hped_script} {input.hla_drb1} DRB1 {output.hla_drb1}
+        Rscript {params.hla2hped_script} {input.hla_dqa1} DQA1 {output.hla_dqa1}
+        Rscript {params.hla2hped_script} {input.hla_dqb1} DQB1 {output.hla_dqb1}
+        Rscript {params.hla2hped_script} {input.hla_dpb1} DPB1 {output.hla_dpb1}
+        """
+
+rule make_hped_from_hibag:
+    input:
+        hla_a = rules.convert_hibag_to_hla2hped_input.output.hla_a,
+        hla_b = rules.convert_hibag_to_hla2hped_input.output.hla_b,
+        hla_c = rules.convert_hibag_to_hla2hped_input.output.hla_c,
+        hla_drb1 = rules.convert_hibag_to_hla2hped_input.output.hla_drb1,
+        hla_dqa1 = rules.convert_hibag_to_hla2hped_input.output.hla_dqa1,
+        hla_dqb1 = rules.convert_hibag_to_hla2hped_input.output.hla_dqb1,
+        hla_dpb1 = rules.convert_hibag_to_hla2hped_input.output.hla_dpb1,
     output:
         hped = str(output_folder / "HATK" / "hibag_hla2hped.2field.hped")
     params:
