@@ -141,7 +141,7 @@ rule convert_hibag_to_hla2hped_input:
         hla_drb1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DRB1"),
         hla_dqa1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DQA1"),
         hla_dqb1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DQB1"),
-        hla_dpb1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DPB1")
+        hla_dpb1 = str(output_folder / "HIBAG" / "hibag.hla2hped_input.DPB1"),
         hla2hped_input = str(output_folder / "HIBAG" / "hibag.hla2hped_input")
     params:
         hla2hped_script = "HIBAG/hibag_files_for_hla2hped.R"
@@ -165,7 +165,7 @@ rule make_hped_from_hibag:
         hla_drb1 = rules.convert_hibag_to_hla2hped_input.output.hla_drb1,
         hla_dqa1 = rules.convert_hibag_to_hla2hped_input.output.hla_dqa1,
         hla_dqb1 = rules.convert_hibag_to_hla2hped_input.output.hla_dqb1,
-        hla_dpb1 = rules.convert_hibag_to_hla2hped_input.output.hla_dpb1,
+        hla_dpb1 = rules.convert_hibag_to_hla2hped_input.output.hla_dpb1
     output:
         hped = str(output_folder / "HATK" / "hibag_hla2hped.2field.hped")
     params:
