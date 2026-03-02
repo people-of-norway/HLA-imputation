@@ -257,9 +257,11 @@ rule cookhla_make_binary:
     run:
         in_trunk = plink_base(input.bedset[0])
         out_trunk = plink_base(output.bedset[0])
+        aa_trunk = plink_base(input.aa_dict)
+        snp_trunk = plink_base(input.snp_dict)
         cmd = f"""
         cd {HATK_path}
-        python -m bMarkerGenerator --bfile {in_trunk} --chped {input.chped} --out {out_trunk} --hg {hg} --dict-AA {input.aa_dict} --dict-SNPS {input.snp_dict} 
+        python -m bMarkerGenerator --bfile {in_trunk} --chped {input.chped} --out {out_trunk} --hg {hg} --dict-AA {aa_trunk} --dict-SNPS {snp_trunk} 
         """
         shell(cmd)
         # in_trunk = plink_base(input.bedset[0])
