@@ -31,13 +31,11 @@ def plink_base(path):
 
 rule all:
     input:
-        # report = str(github_docs / "report.md"),
-        # merged_alleles = str(output_folder / "merged_alleles"),
-        # cookhla_bedset = multiext(str(output_folder / "HATK" / "cookhla_bmarker"), ".bed", ".bim", ".fam"),
+        report = str(github_docs / "report.md"),
+        merged_alleles = str(output_folder / "merged_alleles"),
+        aa_dict = str(output_folder / "aa_dict"),
         hibag_bedset = multiext(str(output_folder / "HATK" / "hibag_bmarker"), ".bed", ".bim", ".fam"),
         cookhla_bedset = multiext(str(output_folder / "HATK" / "cookhla_bmarker"), ".bed", ".bim", ".fam")
-        # str(output_folder / "HATK" / "hibag_hla2hped.2field.hped")
-
 
 rule extract_hla:
     input:
@@ -282,16 +280,18 @@ rule merge_and_make_docs_report:
         hibag_hla_dqa1 = rules.run_hibag.output.hla_dqa1,
         hibag_hla_dqb1 = rules.run_hibag.output.hla_dqb1,
         hibag_hla_dpb1 = rules.run_hibag.output.hla_dpb1,
-        cookhla = rules.run_cookhla.output.alleles
+        cookhla = rules.run_cookhla.output.alleles,
+        dictionary = rules.imgt2seq.output.aa_dict
     output:
         md = str(github_docs / "report.md"),
-        merged_alleles = str(output_folder / "merged_alleles")
+        merged_alleles = str(output_folder / "merged_alleles"),
+        aa_dict = str(output_folder / "aa_dict")
     params:
         merge_report_script = "utils/merge_and_make_report.R",
         allele_frequencies_trunk = str(allele_frequencies_folder / "HLA")
     run:
         in_trunk_hibag = plink_base(input.hibag_hla_a)
-        subprocess.run(["Rscript", params.merge_report_script, in_trunk_hibag, input.cookhla, input.bedset[2], params.allele_frequencies_trunk, output.md, output.merged_alleles, "HLA imputation report " + config["release"]])
+        subprocess.run(["Rscript", params.merge_report_script, in_trunk_hibag, input.cookhla, input.bedset[2], params.allele_frequencies_trunk, input.dictionary, output.md, output.merged_alleles, output.aa_dict, "HLA imputation report " + config["release"]])
 
 
     

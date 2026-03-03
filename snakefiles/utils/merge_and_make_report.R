@@ -1,17 +1,18 @@
 library(dplyr)
 library(tidyr)
 
-debug <- T
+debug <- F
 
 if (debug) {
     args <- c(
-        "/home/oystein/hla_imputation_pipeout/2025.09.16/HIBAG/hibag",
-        "/home/oystein/hla_imputation_pipeout/2025.09.16/CookHLA/cookhla_output.MHC.HLA_IMPUTATION_OUT.alleles",
+        "/home/oystein/hla_imputation_pipeout/2026.02.24/HIBAG/hibag",
+        "/home/oystein/hla_imputation_pipeout/2026.02.24/CookHLA/cookhla_output.MHC.HLA_IMPUTATION_OUT.alleles",
         "/home/moba/geno/MobaPsychgenReleaseMarch23/MoBaPsychGen_v1/MoBaPsychGen_v1-ec-eur-batch-basic-qc.fam",
         "/home/oystein/github/HLA-imputation/snakefiles/resources/norwegian_allele_frequencies/common/HLA",
         "/home/oystein/hla_imputation_pipeout/2026.02.24/HATK/HLA_DICTIONARY_AA.hg19.imgt3220.txt",
-        "/home/oystein/test/2025.09.16/docs/report.md",
-        "/home/oystein/test/2025.09.16/pipeout/merged_alleles",
+        "/home/oystein/test/2026.02.24/docs/report.md",
+        "/home/oystein/test/2026.02.24/pipeout/merged_alleles",
+        "/home/oystein/test/2026.02.24/pipeout/aa_dict",
         "HLA Imputation report TEST"
     )
 } else {
@@ -26,7 +27,8 @@ ref_trunk_file <- args[4]
 dict_file <- args[5]
 md_file <- args[6]
 merged_alleles_file <- args[7]
-title <- args[8]
+aa_dict_out <- args[8]
+title <- args[9]
 
 docs_folder <- dirname(md_file)
 pipeout_folder <- dirname(merged_alleles_file)
@@ -97,6 +99,11 @@ cookhla_dqb1 <- subset(cookhla, hla == "DQB1")
 cookhla_drb1 <- subset(cookhla, hla == "DRB1")
 
 dict <- read.table(dict_file, col.names =c("allele", "aa"))
+
+dict <- dict %>%
+    separate(allele, into = c("hla", "allele"), sep = "\\*")
+
+
 
 # Extract trios
 
@@ -540,3 +547,4 @@ write_inconsistency_counts(results_c[[4]], "C")
 write_inconsistency_counts(results_dqa1[[4]], "DQA1")
 write_inconsistency_counts(results_dqb1[[4]], "DQB1")
 write_inconsistency_counts(results_drb1[[4]], "DRB1")
+write.table(x = dict, file = aa_dict_out, sep="\t", quote=F, row.names=F)
