@@ -1,15 +1,24 @@
 from pathlib import Path
 import sys
+import os
+import re
+import subprocess
 
 configfile: "parameters/config.yaml"
 shell.executable("/bin/bash")
 
 output_folder = Path(config['output_folder'] + config["release"])
+release_folder = Path(config['release_folder'] + config["release"])
 docs_folder = output_folder / "docs"
 CookHLA_path = Path(config['CookHLA_path'])
 CookHLA_py = str(CookHLA_path /"CookHLA.py")
 CookHLA_ref = str(CookHLA_path / "example" / "HM_CEU_REF")
+HATK_path = Path(config['HATK_path'])
+IMGT_path = Path(config['IMGT_path'])
 sys.path.append(config['CookHLA_path'])
+sys.path.append(config['HATK_path'])
+hg = config['hg']
+imgt_version = config['IMGT_version']
 allele_frequencies_folder =Path(config['allele_frequencies_folder'])
 github_docs = Path(os.path.dirname(workflow.basedir)) / 'docs' / config['release']
 
@@ -24,8 +33,10 @@ def plink_base(path):
 rule all:
     input:
         report = str(github_docs / "report.md"),
-        merged_alleles = str(output_folder / "merged_alleles")
-
+        merged_alleles = str(release_folder / "merged_alleles"),
+        aa_dict = str(release_folder / "aa_dict"),
+        hibag_binary = multiext(str(release_folder / "hibag_bmarker"), ".bed", ".bim", ".fam"),
+        cookhla_binary = multiext(str(release_folder / "cookhla_bmarker"), ".bed", ".bim", ".fam")
 
 rule extract_hla:
     input:
@@ -67,14 +78,16 @@ rule run_hibag:
     run:
         in_trunk = plink_base(input.bedset[0])
         out_trunk = plink_base(output.hla_a)
-        subprocess.run(["Rscript", params.hibag_r, in_trunk, out_trunk, params.hibag_model, str(threads)])
+        cmd = f"ulimit -s 262144 && Rscript {params.hibag_r} {in_trunk} {out_trunk} {params.hibag_model} {threads}"
+        shell(cmd)
 
 
 rule run_cookhla:
     input:
         bedset = rules.extract_hla.output.bedset
     output:
-        alleles = str(output_folder / "CookHLA" / "cookhla_output.MHC.HLA_IMPUTATION_OUT.alleles")
+        alleles = str(output_folder / "CookHLA" / "cookhla_output.MHC.HLA_IMPUTATION_OUT.alleles"),
+        hped = str(output_folder / "CookHLA" / "cookhla_output.MHC.HLA_IMPUTATION_OUT.hped")
     conda:
         str(CookHLA_path / "CookHLA_LINUX.yml")
     params:
@@ -90,6 +103,107 @@ rule run_cookhla:
         python {CookHLA_py} -i $in_trunk -hg 19 -o $out_trunk -ref {CookHLA_ref} -mem {params.mem} -nth {threads}
         """
 
+rule imgt2seq:
+    input:
+        fasta = str(IMGT_path / "hla_prot.fasta")
+    output:
+        aa_dict = str(output_folder / "HATK" / f"HLA_DICTIONARY_AA.hg{hg}.imgt{imgt_version}.txt"),
+        snp_dict = str(output_folder / "HATK" / f"HLA_DICTIONARY_SNPS.hg{hg}.imgt{imgt_version}.txt"),
+        hat = str(output_folder / "HATK" / f"HLA_ALLELE_TABLE.imgt{imgt_version}.hat")
+    params:
+        output_dir = str(output_folder / "HATK")
+    conda:
+        str(HATK_path / "HATK_LINUX.yml")
+    threads: 8
+    shell:
+         """
+         cd {HATK_path}
+         python -m IMGT2Seq --imgt {imgt_version} --imgt-dir {IMGT_path} --hg {hg} --out {params.output_dir} --multiprocess {threads} --2field
+         """
+
+
+rule make_chped_from_hibag:
+    input:
+        hibag_hla_a = rules.run_hibag.output.hla_a,
+        hibag_hla_b = rules.run_hibag.output.hla_b,
+        hibag_hla_c = rules.run_hibag.output.hla_c,
+        hibag_hla_drb1 = rules.run_hibag.output.hla_drb1,
+        hibag_hla_dqa1 = rules.run_hibag.output.hla_dqa1,
+        hibag_hla_dqb1 = rules.run_hibag.output.hla_dqb1,
+        hibag_hla_dpb1 = rules.run_hibag.output.hla_dpb1,
+    output:
+        chped = str(output_folder / "HIBAG" / f"hibag.chped")
+    params:
+        r_script = "utils/hibag_to_chped.R"
+    run:
+        in_trunk_hibag = plink_base(input.hibag_hla_a)
+        subprocess.run(["Rscript", params.r_script, in_trunk_hibag, output.chped])
+
+rule make_chped_from_cookhla:
+    input:
+        hped = rules.run_cookhla.output.hped,
+        hat = rules.imgt2seq.output.hat
+    output:
+        chped = str(output_folder / "HATK" / f"cookhla.imgt{imgt_version}.2field.chped")
+    params:
+        out_trunk = str(output_folder / "HATK" / f"cookhla")
+    conda:
+        str(HATK_path / "HATK_LINUX.yml")
+    shell:
+        """
+        cd {HATK_path}
+        python -m NomenCleaner --hped {input.hped} --hat {input.hat} --out {params.out_trunk} --2field
+        """
+
+
+
+rule hibag_make_binary:
+    input:
+        bedset = rules.extract_hla.output.bedset,
+        chped = rules.make_chped_from_hibag.output.chped,
+        aa_dict = rules.imgt2seq.output.aa_dict,
+        snp_dict = rules.imgt2seq.output.snp_dict
+    output:
+        bedset = multiext(str(output_folder / "HATK" / "hibag_bmarker"), ".bed", ".bim", ".fam")
+    conda:
+        str(HATK_path / "HATK_LINUX.yml")
+    run:
+        in_trunk = plink_base(input.bedset[0])
+        out_trunk = plink_base(output.bedset[0])
+        aa_trunk = plink_base(input.aa_dict)
+        snp_trunk = plink_base(input.snp_dict)
+        cmd = f"""
+        cd {HATK_path}
+        python -m bMarkerGenerator --bfile {in_trunk} --chped {input.chped} --out {out_trunk} --hg {hg} --dict-AA {aa_trunk} --dict-SNPS {snp_trunk} 
+        """
+        shell(cmd)
+
+
+
+rule cookhla_make_binary:
+    input:
+        bedset = rules.extract_hla.output.bedset,
+        chped = rules.make_chped_from_cookhla.output.chped,
+        aa_dict = rules.imgt2seq.output.aa_dict,
+        snp_dict = rules.imgt2seq.output.snp_dict
+    output:
+        bedset = multiext(str(output_folder / "HATK" / "cookhla_bmarker"), ".bed", ".bim", ".fam")
+    conda:
+        str(HATK_path / "HATK_LINUX.yml")
+    run:
+        in_trunk = plink_base(input.bedset[0])
+        out_trunk = plink_base(output.bedset[0])
+        aa_trunk = plink_base(input.aa_dict)
+        snp_trunk = plink_base(input.snp_dict)
+        cmd = f"""
+        cd {HATK_path}
+        python -m bMarkerGenerator --bfile {in_trunk} --chped {input.chped} --out {out_trunk} --hg {hg} --dict-AA {aa_trunk} --dict-SNPS {snp_trunk} 
+        """
+        shell(cmd)
+
+
+
+
 rule merge_and_make_docs_report:
     input:
         bedset = rules.extract_hla.output.bedset,
@@ -97,23 +211,46 @@ rule merge_and_make_docs_report:
         hibag_hla_b = rules.run_hibag.output.hla_b,
         hibag_hla_c = rules.run_hibag.output.hla_c,
         hibag_hla_drb1 = rules.run_hibag.output.hla_drb1,
-        hibag_hla_dqa1 = rules.run_hibag.output.hla_dqb1,
+        hibag_hla_dqa1 = rules.run_hibag.output.hla_dqa1,
         hibag_hla_dqb1 = rules.run_hibag.output.hla_dqb1,
         hibag_hla_dpb1 = rules.run_hibag.output.hla_dpb1,
-        cookhla = rules.run_cookhla.output.alleles
+        cookhla = rules.run_cookhla.output.alleles,
+        dictionary = rules.imgt2seq.output.aa_dict
     output:
         md = str(github_docs / "report.md"),
-        merged_alleles = str(output_folder / "merged_alleles")
+        merged_alleles = str(output_folder / "merged_alleles"),
+        aa_dict = str(output_folder / "aa_dict")
     params:
         merge_report_script = "utils/merge_and_make_report.R",
         allele_frequencies_trunk = str(allele_frequencies_folder / "HLA")
     run:
         in_trunk_hibag = plink_base(input.hibag_hla_a)
-        subprocess.run(["Rscript", params.merge_report_script, in_trunk_hibag, input.cookhla, input.bedset[2], params.allele_frequencies_trunk, output.md, output.merged_alleles, "HLA imputation report " + config["release"]])
+        subprocess.run(["Rscript", params.merge_report_script, in_trunk_hibag, input.cookhla, input.bedset[2], params.allele_frequencies_trunk, input.dictionary, output.md, output.merged_alleles, output.aa_dict, "HLA imputation report " + config["release"]])
 
 
-    
 
+rule relase:
+    input:
+        merged_alleles = rules.merge_and_make_docs_report.output.merged_alleles,
+        aa_dict = rules.merge_and_make_docs_report.output.aa_dict,
+        hibag_binary = rules.hibag_make_binary.output.bedset,
+        cookhla_binary = rules.cookhla_make_binary.output.bedset
+    output:
+        merged_alleles = str(release_folder / "merged_alleles"),
+        aa_dict = str(release_folder / "aa_dict"),
+        hibag_binary = multiext(str(release_folder / "hibag_bmarker"), ".bed", ".bim", ".fam"),
+        cookhla_binary = multiext(str(release_folder / "cookhla_bmarker"), ".bed", ".bim", ".fam")
+    shell:
+        """
+        cp {input.merged_alleles} {output.merged_alleles}
+        cp {input.aa_dict} {output.aa_dict}
+        cp {input.hibag_binary[0]} {output.hibag_binary[0]}
+        cp {input.hibag_binary[1]} {output.hibag_binary[1]}
+        cp {input.hibag_binary[2]} {output.hibag_binary[2]}
+        cp {input.cookhla_binary[0]} {output.cookhla_binary[0]}
+        cp {input.cookhla_binary[1]} {output.cookhla_binary[1]}
+        cp {input.cookhla_binary[2]} {output.cookhla_binary[2]}
+        """
     
 
 
