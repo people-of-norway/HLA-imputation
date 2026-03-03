@@ -447,20 +447,7 @@ plot_prob_density <- function(probs, title, absolute_filepath, relative_filepath
         append = T
     )
 }
-# plot_prob_density <- function(probs, title, absolute_filepath, relative_filepath) {
-#     png(absolute_filepath)
-#     plot(density(probs),
-#         main = title,
-#         xlab = "Probability",
-#         ylab = "Density"
-#     )
-#     dev.off()
-#     write(
-#         x = paste0("![](",relative_filepath,")"),
-#         file = md_file,
-#         append = T
-#     )
-# }
+
 
 add_rare_row <- function(ref) {
     rare_freq <- 1 - sum(ref$freq)

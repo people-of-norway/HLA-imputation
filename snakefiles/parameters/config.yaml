@@ -1,6 +1,7 @@
 input_trunk: "/home/moba/geno/HDGB-MoBaGenetics/2025.09.25/moba_genotypes_2025.09.25_common"
 release: "2026.02.24"
 output_folder: "/home/oystein/hla_imputation_pipeout/"
+release_folder: "/home/oystein/hla_imputation_release/"
 CookHLA_path: "/home/oystein/CookHLA"
 HATK_path: "/home/oystein/HATK"
 IMGT_path: "/home/oystein/IMGTHLA/"
