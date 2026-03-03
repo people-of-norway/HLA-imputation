@@ -430,7 +430,23 @@ plot_hibag_ref <- function(hibag, ref, hla, absolute_filepath, relative_filepath
         append = T
     )
 }
-
+plot_prob_density <- function(probs, title, absolute_filepath, relative_filepath) {
+    png(absolute_filepath)
+    breaks_seq <- seq(0, 1, length.out = 100)
+    hist(probs,
+        breaks = breaks_seq,
+        xlim = c(0, 1),
+        main = title,
+        xlab = "Probability",
+        ylab = "Frequency"
+    )
+    dev.off()
+    write(
+        x = paste0("![](",relative_filepath,")"),
+        file = md_file,
+        append = T
+    )
+}
 plot_prob_density <- function(probs, title, absolute_filepath, relative_filepath) {
     png(absolute_filepath)
     plot(density(probs),
