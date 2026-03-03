@@ -490,8 +490,8 @@ plot_frequencies_and_densities <- function(ref, hibag, cookhla, hla){
     cook_prob_relative_filepath <- paste0("plots/", cook_prob_filename)
 
     plot_frequencies(common_cookhla, common_hibag, ref, hla, freq_absolute_path, freq_relative_path)
-    plot_prob_density(hibag$prob, paste0("HIBAG HLA-",hla," probability density"), hibag_prob_aboslute_filepath, hibag_prob_relative_filepath)
-    plot_prob_density(cookhla$confidence, paste0("CookHLA HLA-",hla, " probability density"), cook_prob_absolute_filepath, cook_prob_relative_filepath)
+    plot_prob_density(hibag$prob, paste0("HIBAG HLA-",hla," probabilities"), hibag_prob_aboslute_filepath, hibag_prob_relative_filepath)
+    plot_prob_density(cookhla$confidence, paste0("CookHLA HLA-",hla, " probabilities"), cook_prob_absolute_filepath, cook_prob_relative_filepath)
 
 }
 
