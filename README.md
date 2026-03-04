@@ -16,7 +16,7 @@ You can now run the file /snakefiles/Snakefile using Snakemake (see https://snak
 
 - Single inconsistency counts per gene and allele. These tables list the number of times HIBAG and CookHLA disagree on each particular pair of alleles, where the rows are the HIBAG alleles and the columns the CookHLA alleles. For example the row 02:01, column 01:01 in the HLA-A table gives the number of times HIBAG suggests allele 02:01 while CookHLA instead suggest allele 01:01, for HLA-A. These tables are also reproduced in a machine-readable format in the folder /docs/{release}/inconsistencies_aggregated.
 
-- Allele frequencies and probability density plots. The allele frequency plots compare the frequencies of the imputed alleles to the frequencies in the Norwegian population, published in Lande et al (2018). The probability density plots show the densities of the output 'prob' from HIBAG and 'confidence' from CookHLA (ideally these should show a sharp peak close to 1).
+- Allele frequencies and probability histogram plots. The allele frequency plots compare the frequencies of the imputed alleles to the frequencies in the Norwegian population, published in Lande et al (2018). The probability histogram plots show the frequencies of the output 'prob' from HIBAG and 'confidence' from CookHLA for all samples and alleles (ideally these should show a sharp peak close to 1).
 
 The pipeline also outputs lists of samples with single and double inconsistencies in the folder {output_folder}/{release}/inconsistencies_samples/
 
