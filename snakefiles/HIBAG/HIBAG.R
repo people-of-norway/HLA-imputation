@@ -16,11 +16,7 @@ if (debug) {
 }
 
 # #### INPUT FILE ####
-# args <- commandArgs(TRUE)
-# input_trunk <- args[1]
-# output_trunk <- args[2]
-# modelfile <- args[3]
-# threads <- as.integer(args[4])
+
 
 #### MODEL CREATION ####
 mlst<-get(load(modelfile))
@@ -33,9 +29,7 @@ geno <- hlaBED2Geno(bed.fn=paste(input_trunk,".bed",sep = ""),
 create_model_predict_and_write <- function(object, geno, output_hla, output_aa, threads){
     model <- hlaModelFromObj(object)
     hla_pred <- hlaPredict(model, geno, cl=threads)
-    # hla_conv <- hlaConvSequence(hla = hla_pred, code = "P.code.merge")
     write.table(x=hla_pred$value, file=output_hla, col.names=T, row.names=F, sep = "\t", quote=F)
-    # write.table(x=hla_conv$value, file=output_aa, col.names=T, row.names=F, sep = "\t", quote=F)
 }
 create_model_predict_and_write(mlst$A, geno, paste0(output_trunk,".A"), paste0(output_trunk,".aa.A"), threads)
 create_model_predict_and_write(mlst$B, geno, paste0(output_trunk,".B"), paste0(output_trunk,".aa.B"), threads)
