@@ -35,8 +35,8 @@ rule all:
         # report = str(github_docs / "report.md"),
         # merged_alleles = str(release_folder / "merged_alleles"),
         # aa_dict = str(release_folder / "aa_dict"),
-        # multiext(str(output_folder / "HATK" / "hibag_bmarker"), ".bed", ".bim", ".fam"),
-        multiext(str(output_folder / "HATK" / "cookhla_bmarker"), ".bed", ".bim", ".fam")
+        multiext(str(output_folder / "HATK" / "hibag_bmarker"), ".bed", ".bim", ".fam"),
+        # multiext(str(output_folder / "HATK" / "cookhla_bmarker"), ".bed", ".bim", ".fam")
         # hibag_binary = multiext(str(release_folder / "hibag_bmarker"), ".bed", ".bim", ".fam"),
         # cookhla_binary = multiext(str(release_folder / "cookhla_bmarker"), ".bed", ".bim", ".fam")
 
