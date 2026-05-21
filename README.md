@@ -1,3 +1,9 @@
+CURRENT RELEASE: 2026.05.21
+
+Changes from previous release:
+- Fixed an issue with some samples appearing twice in the bmarker files
+- Added a simple script (utils/aa_check.py) for checking if bmarker files are consistent with the amino acid sequence strings
+
 This repository contains a Snakemake (Mölder et al 2021) pipeline for performing HLA imputation on a plink2 genotype dataset (.pgen + .pvar + .psam) using the softwares HIBAG (Zheng et al 2014) and CookHLA (Cook et al 2021). To run the pipeline, you must clone the CookHLA repository (https://github.com/WansonChoi/CookHLA.git), HATK repository (https://github.com/WansonChoi/HATK) and IMGT repository (https://github.com/ANHIG/IMGTHLA) to separate folders and then update the following parameters in /snakefiles/parameters/config.yaml
 
 - input_trunk: the path to the input plink2 file set without the file endings
@@ -7,6 +13,10 @@ This repository contains a Snakemake (Mölder et al 2021) pipeline for performin
 - CookHLA_path: the path to the folder where you cloned the CookHLA repository
 - HATK_path: the path to the folder where you cloned the HATK repository
 - IMGT_path: the path to the folder where you cloned the IMGT repository
+
+NOTE: If you get an error in HATK/bMarkerGenerator saying that NoneType does not have a property file.prefix, go to the HATK folder, find the file bMarkerGenerator/__main__.py, add the following line in the __init__ method before the call to the bMarkerGenerator method: 
+bfileprefix = None if self.bfile is None else self.bfile.file_prefix
+Then change the call to the bMarkerGenerator method so that _variants=bfileprefix (instead of self.bfile.file_prefix)
 
 You can now run the file /snakefiles/Snakefile using Snakemake (see https://snakemake.readthedocs.io/). The final ouput of the pipeline consists of the files alleles_merged, aa_dict, hibag_bmarker(.bed, .bim., .fam), cookhla_bmarker(.bed, .bim, .fam) and report.md. alleles_merged gives the imputed alleles for each gene and each sample for both softwares (hibag1 and hibag2 for HIBAG, cook1 and cook2 for CookHLA), as well as relevant statistics output from HIBAG and CookHLA (prefixed with "hibag_" and "cook_", respectively). hibag_mendel and cook_mendel (for HIBAG and CookHLA, respectively) are TRUE if the sample is from a child in a trio where the imputed alleles are a possible combination of the parents' alleles, FALSE if the sample is from a child in a trio where the imputed alleles are *not* a possible combination of the parents' alleles (i.e. if there is a Mendelian error) and NA if the sample is not from a child in a trio. The column 'inconsistencies' gives the number of inconsistencies between HIBAG and CookHLA for the given sample and gene (0 if the two softwares give the same result, 1 if they disagree on one allele, 2 if they disagree on both alleles.) The file aa_dict is a table of amino acid sequences for each allele. The plink binary filesets hibag_bmarker and cookhla_bmarker gives the amino acid sequences as binary markers (the output of HATK/bMarkerGenerator; see https://github.com/WansonChoi/HATK/blob/master/docs/_2_bMarkerGenerator.md). The file report.md includes plots and statistics indicating the quality of the imputation from the two softwares, as follows:
 
@@ -20,7 +30,7 @@ You can now run the file /snakefiles/Snakefile using Snakemake (see https://snak
 
 The pipeline also outputs lists of samples with single and double inconsistencies in the folder {output_folder}/{release}/inconsistencies_samples/
 
-The [2026.02.24 report](https://github.com/people-of-norway/HLA-imputation/blob/main/docs/2025.09.16/report.md) is the report for the [2025.09.25 release](https://github.com/fhi-beta/mobaGenetics-qc) of the genotype data from the [Norwegian Mother, Father and Child Cohort Study (MoBa)](https://www.fhi.no/en/studies/moba/).
+The [2026.05.21 report](https://github.com/people-of-norway/HLA-imputation/blob/main/docs/2025.05.21/report.md) is the report for the [2025.09.25 release](https://github.com/fhi-beta/mobaGenetics-qc) of the genotype data from the [Norwegian Mother, Father and Child Cohort Study (MoBa)](https://www.fhi.no/en/studies/moba/).
 
 Øystein Kapperud and Kinnie Le Roy have contributed to the work in this repository. It is currently maintained by Øystein Kapperud.
 
