@@ -14,7 +14,7 @@ This repository contains a Snakemake (Mölder et al 2021) pipeline for performin
 - HATK_path: the path to the folder where you cloned the HATK repository
 - IMGT_path: the path to the folder where you cloned the IMGT repository
 
-NOTE: If you get an error in HATK/bMarkerGenerator saying that NoneType does not have a property file.prefix, go to the HATK folder, find the file bMarkerGenerator/__main__.py, add the following line in the __init__ method before the call to the bMarkerGenerator method: 
+NOTE: If you get an error in HATK/bMarkerGenerator saying that NoneType does not have a property file.prefix, go to the HATK folder, find the file bMarkerGenerator/\_\_main\_\_.py, add the following line in the \_\_init\_\_ method before the call to the bMarkerGenerator method: 
 bfileprefix = None if self.bfile is None else self.bfile.file_prefix
 Then change the call to the bMarkerGenerator method so that _variants=bfileprefix (instead of self.bfile.file_prefix)
 
