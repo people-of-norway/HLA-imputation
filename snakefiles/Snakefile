@@ -20,7 +20,7 @@ sys.path.append(config['HATK_path'])
 hg = config['hg']
 imgt_version = config['IMGT_version']
 allele_frequencies_folder =Path(config['allele_frequencies_folder'])
-github_docs = Path(config['output_folder']) / 'docs' / config['release']
+github_docs = Path(os.path.dirname(workflow.basedir)) / 'docs' / config['release']
 
 import MakeGeneticMap
 
