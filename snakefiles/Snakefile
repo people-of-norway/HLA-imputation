@@ -44,7 +44,7 @@ rule extract_hla:
     input:
         bedset = multiext(config['input_trunk'], ".pgen", ".pvar", ".psam")
     output:
-        bedset = multiext(str(output_folder/"extract_hla"), ".bed", ".bim", ".fam")
+        bedset = multiext(str(output_folder / "extract_hla"), ".bed", ".bim", ".fam")
     params:
         from_bp = str(config['from_bp']),
         to_bp = str(config['to_bp'])
