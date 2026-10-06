@@ -9,5 +9,6 @@ IMGT_version: 3220
 hg: 19
 from_bp: 28477895
 to_bp: 34000000
+threads: 32
 CookHLA_mem: "58g"
 allele_frequencies_folder: "/home/oystein/github/HLA-imputation/snakefiles/resources/norwegian_allele_frequencies/common/"
