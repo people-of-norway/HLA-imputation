@@ -42,7 +42,7 @@ rule all:
 
 rule extract_hla:
     input:
-        bedset = multiext(config['input_trunk'], ".pgen", ".pvar", ".psam")
+        bedset = multiext(config['input_trunk'], ".bed", ".bim", ".fam")
     output:
         bedset = multiext(str(output_folder / "extract_hla"), ".bed", ".bim", ".fam")
     params:
@@ -53,7 +53,7 @@ rule extract_hla:
         out_trunk = plink_base(output.bedset[0])
         subprocess.run([
             "plink2",
-            "--pfile", in_trunk,
+            "--bfile", in_trunk,
             "--chr", "6",
             "--from-bp", params.from_bp,
             "--to-bp", params.to_bp,
