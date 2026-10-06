@@ -7,3 +7,4 @@ dependencies:
   - plink2
   - r-essentials
   - bioconductor-hibag
+  - pyliftover
