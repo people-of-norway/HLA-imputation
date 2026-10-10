@@ -4,9 +4,9 @@ import pysam
 import pandas as pd
 
 model = "cook"
-vcf_file = f"/home/oystein/test/bmarker_cookhla_new.bcf"
-aa_file = "/home/oystein/hla_imputation_pipeout/2026.02.24/aa_dict"
-alleles_file = "/home/oystein/hla_imputation_pipeout/2026.02.24/merged_alleles"
+vcf_file = f"/home/oystein.kapperud/tmp/hibag_bmarker.bcf"
+aa_file = "/home/oystein.kapperud/hla_imputation_pipeout/2026.02.24/aa_dict"
+alleles_file = "/home/oystein.kapperud/hla_imputation_pipeout/2026.02.24/merged_alleles"
 samples_to_test = 10
 
 
