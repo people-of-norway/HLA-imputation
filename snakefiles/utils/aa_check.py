@@ -5,8 +5,8 @@ import pandas as pd
 
 model = "cook"
 vcf_file = f"/home/oystein.kapperud/tmp/hibag_bmarker.bcf"
-aa_file = "/home/oystein.kapperud/hla_imputation_pipeout/2026.02.24/aa_dict"
-alleles_file = "/home/oystein.kapperud/hla_imputation_pipeout/2026.02.24/merged_alleles"
+aa_file = "/home/oystein.kapperud/hla_imputation_pipeout/2026.10.06/aa_dict"
+alleles_file = "/home/oystein.kapperud/hla_imputation_pipeout/2026.10.06/merged_alleles"
 samples_to_test = 10
 
 
